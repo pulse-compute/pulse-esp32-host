@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/wdc/wdc_device_profile.schema.json",
+  "title": "WDC Device Profile v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "profile_format",
+    "device",
+    "resources"
+  ],
+  "properties": {
+    "profile_format": {
+      "const": 1
+    },
+    "device": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "device_class",
+        "hardware",
+        "board_rev"
+      ],
+      "properties": {
+        "device_class": {
+          "type": "string"
+        },
+        "hardware": {
+          "const": "esp32-s3"
+        },
+        "board_rev": {
+          "type": "string"
+        },
+        "device_id_template": {
+          "type": "string"
+        }
+      }
+    },
+    "resources": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "gpio"
+      ],
+      "properties": {
+        "gpio": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
+        "i2c": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
+        "sensors": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
+        "network": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
+        "ble": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object"
+          }
+        }
+      }
+    }
+  }
+}

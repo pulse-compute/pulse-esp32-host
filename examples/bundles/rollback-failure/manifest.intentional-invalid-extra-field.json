@@ -1,0 +1,72 @@
+{
+  "manifest_format": 1,
+  "bundle_id": "com.example.rollback-failure",
+  "bundle_version": 2,
+  "bundle_semver": "0.2.0-bad-health",
+  "security_counter": 2,
+  "abi": {
+    "major": 1,
+    "min_minor": 0,
+    "max_minor": 0
+  },
+  "target": {
+    "soc": [
+      "esp32-s3"
+    ],
+    "device_class": [
+      "relay-node"
+    ],
+    "board_rev_min": "c"
+  },
+  "runtime": {
+    "engine": "wamr",
+    "payload_kind": "wasm",
+    "wasm_features": {
+      "threads": false,
+      "shared_memory": false,
+      "wasi": false
+    }
+  },
+  "entrypoints": {
+    "init": "wdc_module_init",
+    "event": "wdc_module_on_event",
+    "health": "wdc_module_health",
+    "shutdown": "wdc_module_shutdown"
+  },
+  "limits": {
+    "linear_memory_max_bytes": 131072,
+    "stack_bytes": 16384,
+    "max_event_bytes": 2048,
+    "max_request_bytes": 2048,
+    "max_response_bytes": 2048,
+    "init_timeout_ms": 2000,
+    "event_timeout_ms": 100,
+    "health_timeout_ms": 50,
+    "host_call_timeout_ms": 50,
+    "max_outstanding_async_requests": 4
+  },
+  "capabilities": [
+    {
+      "id": 1,
+      "kind": "gpio",
+      "resource": "relay_1",
+      "ops": [
+        "write"
+      ],
+      "max_rate_hz": 10
+    }
+  ],
+  "payload": {
+    "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+    "size_bytes": 0
+  },
+  "signature": {
+    "alg": "ed25519",
+    "key_id": "dev-r0",
+    "value": "unsigned-dev-placeholder"
+  },
+  "test_behavior": {
+    "health": "return_error",
+    "expected_shell_action": "rollback"
+  }
+}

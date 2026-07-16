@@ -1,0 +1,68 @@
+{
+  "profile_format": 1,
+  "device": {
+    "device_class": "relay-node",
+    "hardware": "esp32-s3",
+    "board_rev": "c",
+    "device_id_template": "relay-node-{efuse_mac}"
+  },
+  "resources": {
+    "gpio": {
+      "relay_1": {
+        "pin": 12,
+        "mode": "output",
+        "active": "high",
+        "safe_value": false
+      },
+      "status_led": {
+        "pin": 48,
+        "mode": "output",
+        "active": "low",
+        "safe_value": true
+      },
+      "button_1": {
+        "pin": 0,
+        "mode": "input_pullup",
+        "debounce_ms": 30
+      }
+    },
+    "i2c": {
+      "i2c0": {
+        "scl": 9,
+        "sda": 8,
+        "frequency_hz": 400000
+      }
+    },
+    "sensors": {
+      "temp_ambient": {
+        "type": "sht31",
+        "bus": "i2c0",
+        "address": "0x44"
+      }
+    },
+    "network": {
+      "mqtt_telemetry": {
+        "kind": "mqtt_publish",
+        "topic_prefix": "devices/demo/telemetry",
+        "max_payload_bytes": 512
+      },
+      "mqtt_commands": {
+        "kind": "mqtt_subscribe",
+        "topic_filter": "devices/demo/commands/",
+        "max_payload_bytes": 256
+      },
+      "http_api": {
+        "kind": "http_request",
+        "allowlist": [
+          "https://api.example.invalid/devices/demo/"
+        ],
+        "methods": [
+          "GET",
+          "POST"
+        ],
+        "max_payload_bytes": 1024
+      }
+    },
+    "ble": {}
+  }
+}

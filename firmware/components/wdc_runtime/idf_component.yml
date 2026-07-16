@@ -1,0 +1,2 @@
+dependencies:
+  espressif/wasm-micro-runtime: "^2.4.0~1"

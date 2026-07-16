@@ -1,0 +1,304 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/wdc/wdc_bundle_manifest.schema.json",
+  "title": "WDC Bundle Manifest v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "manifest_format",
+    "bundle_id",
+    "bundle_version",
+    "bundle_semver",
+    "security_counter",
+    "abi",
+    "target",
+    "runtime",
+    "entrypoints",
+    "limits",
+    "capabilities",
+    "payload",
+    "signature"
+  ],
+  "properties": {
+    "manifest_format": {
+      "const": 1
+    },
+    "bundle_id": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9_.-]+$"
+    },
+    "bundle_version": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "bundle_semver": {
+      "type": "string"
+    },
+    "security_counter": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "abi": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "major",
+        "min_minor",
+        "max_minor"
+      ],
+      "properties": {
+        "major": {
+          "const": 1
+        },
+        "min_minor": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "max_minor": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "target": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "soc",
+        "device_class",
+        "board_rev_min"
+      ],
+      "properties": {
+        "soc": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          }
+        },
+        "device_class": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string"
+          }
+        },
+        "board_rev_min": {
+          "type": "string"
+        }
+      }
+    },
+    "runtime": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "engine",
+        "payload_kind",
+        "wasm_features"
+      ],
+      "properties": {
+        "engine": {
+          "enum": [
+            "wamr"
+          ]
+        },
+        "payload_kind": {
+          "enum": [
+            "wasm",
+            "wamr-aot"
+          ]
+        },
+        "wasm_features": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "threads",
+            "shared_memory",
+            "wasi"
+          ],
+          "properties": {
+            "threads": {
+              "type": "boolean"
+            },
+            "shared_memory": {
+              "type": "boolean"
+            },
+            "wasi": {
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    },
+    "entrypoints": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "init",
+        "event",
+        "health",
+        "shutdown"
+      ],
+      "properties": {
+        "init": {
+          "const": "wdc_module_init"
+        },
+        "event": {
+          "const": "wdc_module_on_event"
+        },
+        "health": {
+          "const": "wdc_module_health"
+        },
+        "shutdown": {
+          "const": "wdc_module_shutdown"
+        }
+      }
+    },
+    "limits": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "linear_memory_max_bytes",
+        "stack_bytes",
+        "max_event_bytes",
+        "max_request_bytes",
+        "max_response_bytes",
+        "init_timeout_ms",
+        "event_timeout_ms",
+        "health_timeout_ms",
+        "host_call_timeout_ms",
+        "max_outstanding_async_requests"
+      ],
+      "properties": {
+        "linear_memory_max_bytes": {
+          "type": "integer",
+          "minimum": 16384
+        },
+        "stack_bytes": {
+          "type": "integer",
+          "minimum": 1024
+        },
+        "max_event_bytes": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "max_request_bytes": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "max_response_bytes": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "init_timeout_ms": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "event_timeout_ms": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "health_timeout_ms": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "host_call_timeout_ms": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "max_outstanding_async_requests": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "capabilities": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": [
+          "id",
+          "kind",
+          "resource",
+          "ops"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "kind": {
+            "enum": [
+              "gpio",
+              "sensor",
+              "i2c",
+              "network",
+              "ble",
+              "config",
+              "storage",
+              "diagnostics",
+              "clock"
+            ]
+          },
+          "resource": {
+            "type": "string"
+          },
+          "ops": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            }
+          },
+          "max_rate_hz": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          },
+          "max_payload_bytes": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      }
+    },
+    "payload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sha256",
+        "size_bytes"
+      ],
+      "properties": {
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-fA-F]{64}$"
+        },
+        "size_bytes": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "signature": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "alg",
+        "key_id",
+        "value"
+      ],
+      "properties": {
+        "alg": {
+          "type": "string"
+        },
+        "key_id": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

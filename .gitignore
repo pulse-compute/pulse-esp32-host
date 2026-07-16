@@ -1,0 +1,37 @@
+# build outputs
+build/
+dist/
+target/
+*.o
+*.a
+*.elf
+*.bin
+*.map
+*.wasm
+!firmware/components/wdc_runtime/test_vectors/*.wasm
+*.aot
+
+# ESP-IDF generated config
+firmware/sdkconfig
+firmware/sdkconfig.old
+firmware/managed_components/
+
+# Python
+__pycache__/
+.pytest_cache/
+*.pyc
+
+# editor
+.DS_Store
+.vscode/
+.idea/
+
+
+# generated validation evidence
+reports/*
+!reports/README.md
+!reports/.gitkeep
+!reports/logs/
+reports/logs/*
+!reports/logs/.gitkeep
+audit_reports/

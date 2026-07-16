@@ -1,0 +1,17 @@
+{
+  "bundle_path": "examples/bundles/relay-controller/r6/relay-controller-r6.wdcb",
+  "bundle_size_bytes": 1985,
+  "container_version": 1,
+  "header_len": 120,
+  "header_sha256": "021fd7d78f616deb58657e73e353afc66b96a00ce088abdda5b7777053f78628",
+  "manifest_sha256": "688da7992eb8a799213af8e32153c59ee3edd1f134a9e78a2d787f6008808e72",
+  "manifest_size_bytes": 1503,
+  "payload_sha256": "7874523a711afb0684b4915c184a789c2b506880d150243aa38dceb1c7985db3",
+  "payload_size_bytes": 330,
+  "schema": "wdc.r6.bundle_metadata.v1",
+  "signature_alg": "hmac-sha256-dev",
+  "signature_alg_id": 1,
+  "signature_hex": "5dcaaf6dcf9e73b99d4c1f2bab82a6ca820f5e5dfd370749a32e5a427762f990",
+  "signature_key_id": "dev-r6",
+  "signature_len": 32
+}

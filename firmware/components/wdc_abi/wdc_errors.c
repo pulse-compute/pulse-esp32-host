@@ -1,0 +1,27 @@
+#include "wdc_abi.h"
+
+const char *wdc_status_name(int32_t status)
+{
+    switch (status) {
+    case WDC_OK: return "WDC_OK";
+    case WDC_ERR_UNKNOWN: return "WDC_ERR_UNKNOWN";
+    case WDC_ERR_UNSUPPORTED_ABI: return "WDC_ERR_UNSUPPORTED_ABI";
+    case WDC_ERR_BAD_POINTER: return "WDC_ERR_BAD_POINTER";
+    case WDC_ERR_BAD_LENGTH: return "WDC_ERR_BAD_LENGTH";
+    case WDC_ERR_BAD_ENCODING: return "WDC_ERR_BAD_ENCODING";
+    case WDC_ERR_UNSUPPORTED_OPCODE: return "WDC_ERR_UNSUPPORTED_OPCODE";
+    case WDC_ERR_CAPABILITY_DENIED: return "WDC_ERR_CAPABILITY_DENIED";
+    case WDC_ERR_INVALID_RESOURCE: return "WDC_ERR_INVALID_RESOURCE";
+    case WDC_ERR_INVALID_STATE: return "WDC_ERR_INVALID_STATE";
+    case WDC_ERR_BUSY: return "WDC_ERR_BUSY";
+    case WDC_ERR_TIMEOUT: return "WDC_ERR_TIMEOUT";
+    case WDC_ERR_NO_MEMORY: return "WDC_ERR_NO_MEMORY";
+    case WDC_ERR_RESPONSE_TOO_SMALL: return "WDC_ERR_RESPONSE_TOO_SMALL";
+    case WDC_ERR_RATE_LIMITED: return "WDC_ERR_RATE_LIMITED";
+    case WDC_ERR_CONTRACT_VIOLATION: return "WDC_ERR_CONTRACT_VIOLATION";
+    case WDC_ERR_IO: return "WDC_ERR_IO";
+    case WDC_ERR_NOT_AVAILABLE: return "WDC_ERR_NOT_AVAILABLE";
+    case WDC_ERR_NOT_SYNCHRONIZED: return "WDC_ERR_NOT_SYNCHRONIZED";
+    default: return "WDC_STATUS_UNKNOWN";
+    }
+}

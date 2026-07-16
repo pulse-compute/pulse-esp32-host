@@ -1,0 +1,133 @@
+{
+  "manifest_format": 1,
+  "bundle_id": "com.example.relay-controller",
+  "bundle_version": 8,
+  "bundle_semver": "0.8.0",
+  "security_counter": 8,
+  "abi": {
+    "major": 1,
+    "min_minor": 0,
+    "max_minor": 0
+  },
+  "target": {
+    "soc": [
+      "esp32-s3"
+    ],
+    "device_class": [
+      "relay-node"
+    ],
+    "board_rev_min": "c"
+  },
+  "runtime": {
+    "engine": "wamr",
+    "payload_kind": "wasm",
+    "wasm_features": {
+      "threads": false,
+      "shared_memory": false,
+      "wasi": false
+    }
+  },
+  "entrypoints": {
+    "init": "wdc_module_init",
+    "event": "wdc_module_on_event",
+    "health": "wdc_module_health",
+    "shutdown": "wdc_module_shutdown"
+  },
+  "limits": {
+    "linear_memory_max_bytes": 131072,
+    "stack_bytes": 16384,
+    "max_event_bytes": 2048,
+    "max_request_bytes": 2048,
+    "max_response_bytes": 2048,
+    "init_timeout_ms": 2000,
+    "event_timeout_ms": 100,
+    "health_timeout_ms": 50,
+    "host_call_timeout_ms": 50,
+    "max_outstanding_async_requests": 4
+  },
+  "capabilities": [
+    {
+      "id": 1,
+      "kind": "gpio",
+      "resource": "relay_1",
+      "ops": [
+        "read",
+        "write"
+      ],
+      "max_rate_hz": 10
+    },
+    {
+      "id": 2,
+      "kind": "gpio",
+      "resource": "status_led",
+      "ops": [
+        "write"
+      ],
+      "max_rate_hz": 20
+    },
+    {
+      "id": 3,
+      "kind": "gpio",
+      "resource": "button_1",
+      "ops": [
+        "read",
+        "subscribe"
+      ]
+    },
+    {
+      "id": 10,
+      "kind": "sensor",
+      "resource": "temp_ambient",
+      "ops": [
+        "read"
+      ],
+      "max_rate_hz": 1
+    },
+    {
+      "id": 20,
+      "kind": "network",
+      "resource": "mqtt_telemetry",
+      "ops": [
+        "publish"
+      ],
+      "max_payload_bytes": 1024
+    },
+    {
+      "id": 30,
+      "kind": "storage",
+      "resource": "app_state",
+      "ops": [
+        "read",
+        "write"
+      ],
+      "max_payload_bytes": 512
+    },
+    {
+      "id": 21,
+      "kind": "network",
+      "resource": "mqtt_commands",
+      "ops": [
+        "subscribe"
+      ],
+      "max_payload_bytes": 1024
+    },
+    {
+      "id": 22,
+      "kind": "network",
+      "resource": "http_api",
+      "ops": [
+        "request"
+      ],
+      "max_payload_bytes": 1024
+    }
+  ],
+  "payload": {
+    "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+    "size_bytes": 0
+  },
+  "signature": {
+    "alg": "ed25519",
+    "key_id": "dev-r0",
+    "value": "unsigned-dev-placeholder"
+  }
+}

@@ -1,0 +1,9 @@
+[package]
+name = "wdc_guest"
+version = "0.1.0"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+description = "Rust guest SDK for the WDC ESP32-S3 WASM shell ABI."
+
+[lib]
+path = "src/lib.rs"
