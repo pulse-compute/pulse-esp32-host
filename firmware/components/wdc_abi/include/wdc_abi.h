@@ -96,6 +96,12 @@ extern "C" {
 #define WDC_CBOR_KEY_SECURITY_COUNTER 34u
 #define WDC_CBOR_KEY_PENDING_COUNT    35u
 #define WDC_CBOR_KEY_PAYLOAD_LEN      36u
+#define WDC_CBOR_KEY_CAUSATION_ID     37u
+#define WDC_CBOR_KEY_OPERATION_ID     38u
+#define WDC_CBOR_KEY_CORRELATION_ID   39u
+#define WDC_CBOR_KEY_DEADLINE_MS      40u
+#define WDC_CBOR_KEY_ENCODING         41u
+#define WDC_CBOR_KEY_COMPLETION_LATENCY_MS 42u
 
 #define WDC_R4_EVENT_ABI_VERSION ((WDC_ABI_MAJOR << 16u) | WDC_ABI_MINOR)
 
@@ -185,6 +191,7 @@ typedef enum WdcEventType {
     WDC_EVENT_NET_DISCONNECTED = 0x0802,
     WDC_EVENT_MQTT_MESSAGE = 0x0803,
     WDC_EVENT_HTTP_RESPONSE = 0x0804,
+    WDC_EVENT_HTTP_REQUEST = 0x0805,
 } WdcEventType;
 
 typedef enum WdcHostOpcode {
@@ -206,22 +213,30 @@ typedef enum WdcHostOpcode {
     WDC_OP_MQTT_PUBLISH = 0x0502,
     WDC_OP_MQTT_SUBSCRIBE = 0x0503,
     WDC_OP_HTTP_REQUEST = 0x0504,
+    WDC_OP_HTTP_RESPOND = 0x0505,
     WDC_OP_BLE_SET_VALUE = 0x0601,
     WDC_OP_BLE_NOTIFY = 0x0602,
     WDC_OP_BLE_ADVERTISE_SET = 0x0603,
     WDC_OP_KV_GET = 0x0701,
     WDC_OP_KV_SET = 0x0702,
     WDC_OP_KV_DELETE = 0x0703,
+    WDC_OP_EFFECT_INVOKE = 0x0801,
 } WdcHostOpcode;
 
 typedef enum WdcSlotState {
     WDC_SLOT_EMPTY = 0,
-    WDC_SLOT_DOWNLOADED = 1,
+    WDC_SLOT_STAGED = 1,
     WDC_SLOT_VERIFIED = 2,
-    WDC_SLOT_PENDING = 3,
-    WDC_SLOT_RUNNING_PENDING = 4,
+    WDC_SLOT_TRIAL = 3,
+    WDC_SLOT_TRIAL_RUNNING = 4,
     WDC_SLOT_CONFIRMED = 5,
-    WDC_SLOT_FAILED = 6,
+    WDC_SLOT_REJECTED = 6,
+
+    /* Pre-HP3 host-internal names remain source-compatible. */
+    WDC_SLOT_DOWNLOADED = WDC_SLOT_STAGED,
+    WDC_SLOT_PENDING = WDC_SLOT_TRIAL,
+    WDC_SLOT_RUNNING_PENDING = WDC_SLOT_TRIAL_RUNNING,
+    WDC_SLOT_FAILED = WDC_SLOT_REJECTED,
 } WdcSlotState;
 
 typedef enum WdcShutdownReason {
@@ -280,6 +295,13 @@ typedef int32_t (*WdcHostAuthorizeFn)(void *ctx,
                                       const uint8_t *request,
                                       uint32_t request_len,
                                       int32_t *out_decision_status);
+
+typedef int32_t (*WdcHostEffectCallFn)(void *ctx,
+                                      const uint8_t *request,
+                                      uint32_t request_len,
+                                      uint8_t *response,
+                                      uint32_t response_cap,
+                                      uint32_t *out_response_len);
 
 const char *wdc_status_name(int32_t status);
 const char *wdc_opcode_name(uint32_t opcode);
@@ -359,6 +381,9 @@ void wdc_host_call_clear_gpio_hooks(void);
 
 void wdc_host_call_set_net_hook(WdcHostNetCallFn net_fn, void *ctx);
 void wdc_host_call_clear_net_hook(void);
+
+int32_t wdc_host_call_set_effect_hook(WdcHostEffectCallFn effect_fn, void *ctx);
+void wdc_host_call_clear_effect_hook(void);
 
 void wdc_host_call_reset_for_test(void);
 

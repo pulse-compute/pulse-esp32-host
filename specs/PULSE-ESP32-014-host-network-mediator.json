@@ -1,0 +1,107 @@
+{
+  "aggregate": "HOST_NETWORK_MEDIATOR_IMPLEMENTED",
+  "authority_bindings": {
+    "hp1_model_sha256": "cc3afbfc4ff7d4a7b5b5aca6ae0b5953a34065501bbfea36d4580a2d193fd84d",
+    "hp2_model_sha256": "f9dc94e2ea4bf45af14787671c9fd2ddfb71c888874c6ea8e722cdf0ec5da3f0",
+    "hp3_5_evidence_index_sha256": "3c7d209298ea0f4444991ec296f9b644bbb42428f1d63d7b475468ce2d71a6e9",
+    "hp3_5_model_sha256": "c52993ff889a3dffe2f87f54bd226e652592018410a24ad36b70592c35219a29",
+    "hp3_model_sha256": "79a5c85d8f75ac89ef9903bd8ee54f9400d8754a8c4deb806ab6644dc5e43f38",
+    "hp4_0_model_sha256": "c20f13c6c5817435a686837a70f5a9bd5b6802b020dad0a47ea2f29713f1f684",
+    "hp4_1_model_sha256": "c908deb69c830418c971c9de355e0d319f1e1dd2e2e71c728bdc535434c9a31a",
+    "hp4_2_model_sha256": "38f3c9f80204c655d318de5348d083efc754b9114a2e3ee174546c8666d745ea",
+    "hp4_3_model_sha256": "36ac4f1a0cba50c576de9ea0fc071920240c953a89ff09cfc3ef92839649a690",
+    "hp4_4_model_sha256": "8c7258d502dfbfeedfa8ac1c07a5c47c622bed004eff4f96c6ef8b1a4e1cf99a"
+  },
+  "bounds": {
+    "admin_request_deadline_ms": 30000,
+    "app_body_bytes": 1024,
+    "app_request_deadline_ms": 5000,
+    "app_route_count": 4,
+    "app_slots": 1,
+    "listeners": 2,
+    "open_sockets_per_listener": 3,
+    "parser_bytes": 2304,
+    "request_body_bytes": 2048,
+    "response_body_bytes": 1280,
+    "service_bytes": 8192
+  },
+  "claim": {
+    "application_code_executed": false,
+    "application_http_route_implemented": true,
+    "authenticated_external_admin_adapter_implemented": true,
+    "classification": "HOST_NATIVE_NETWORK_MEDIATOR_ONLY",
+    "common_wasm_handler_host_stub_exercised": true,
+    "factory_host_writable": false,
+    "firmware_component_linked": true,
+    "host_firmware_ota_implemented": false,
+    "mqtt_transport_implemented": false,
+    "network_transport_source_implemented": true,
+    "partition_layout_changed": false,
+    "physical_execution": false,
+    "production_authenticator_implemented": false,
+    "production_cryptography_validated": false,
+    "serial_driver_implemented": false,
+    "target_build_executed": false,
+    "tls_listener_source_implemented": true,
+    "wifi_station_adapter_source_implemented": true
+  },
+  "deferred": [
+    "HP5.5 dual-board Wi-Fi, TLS, web, administration, update, recovery, reset, and resource-floor evidence",
+    "production authenticator, credential provisioning, certificate issuance, private-key lifecycle, and cryptographic validation",
+    "HP6 thin external ESP32 provider and developer path",
+    "HP7 MQTT customer zero and HP7.5 MQTT adversarial dual-board seal",
+    "HP8 external conformance and reconciliation",
+    "RAX or another deployment envelope",
+    "host-firmware, bootloader, factory-host, or partition-table OTA",
+    "application-slot repurposing or partition redesign",
+    "broad peripheral, fleet, attestation, secure-boot, flash-encryption, and eFuse expansion"
+  ],
+  "invariants": {
+    "admin_authority": "HTTP supplies bounded bytes and a host-observed channel binding; HP4 alone owns authenticated entry, replay, command acceptance, terminal, audit, update, and recovery",
+    "admin_reserve": "application routes cannot register in the admin namespace or occupy the independent admin HTTPS server, parser, or socket reserve",
+    "app_authority": "a registered route dispatches one bounded HTTP event through the common Wasm handler and admits at most one first-response-wins paired effect",
+    "boot_authority": "HP3 remains the sole durable application-slot, last-confirmed, trial, fallback, and reboot-selection authority",
+    "client_loss": "network loss is counted and tears down the transport response only; it does not roll back an application or cancel an accepted HP4 command",
+    "credentials": "Wi-Fi credentials, certificate and private-key pointers, sockets, reconnect policy, and TLS state remain host-private",
+    "failure_order": "malformed, oversized, slow, disconnected, unauthorized, stale, replayed, and saturated input rejects before HP4 command acceptance mutation",
+    "resource_authority": "HP1 scheduling, administration/recovery lanes, fixed reserve, and exclusive update admission are unchanged"
+  },
+  "pass": "HP5",
+  "phase": "HOST_NETWORK_MEDIATOR",
+  "routes": {
+    "admin": [
+      "POST /pulse/v1/admin/session/begin",
+      "POST /pulse/v1/admin/session/finish",
+      "DELETE /pulse/v1/admin/session",
+      "POST /pulse/v1/admin/command",
+      "GET /pulse/v1/admin/terminal"
+    ],
+    "application_namespace": "/pulse/v1/app/",
+    "administration_namespace": "/pulse/v1/admin/",
+    "registration": "exact GET or POST routes only; immutable after service start"
+  },
+  "schema": "pulse.esp32.hp5-host-network-mediator.v1",
+  "source_history": {
+    "current_firmware_file_count": 159,
+    "current_firmware_sha256": "2e94b65a03a0612d4e770dc0f9b624dab874a75bf334bbd5173023427b7076a5",
+    "current_guest_sdk_file_count": 13,
+    "current_guest_sdk_sha256": "bc5a537e98343c030ad03c85427c55b244d954a1b26e91c5796f40ba0185f0b3",
+    "current_native_sdk_file_count": 1,
+    "current_native_sdk_sha256": "a7ceb397ab009950a1ebbdea60280f7944020a6523252b7de0d781e3e798bdd4",
+    "hp4_4_archive_manifest_file_count": 474,
+    "hp4_4_archive_payload_bytes": 3697926,
+    "hp4_4_archive_sha256": "df9c4e5e92b0bbd18f04f439cd1cacf3459973a11fbfb9a3a7305f6abb2a7410",
+    "hp4_4_archive_size_bytes": 1132476,
+    "hp4_4_firmware_file_count": 150,
+    "hp4_4_firmware_sha256": "ff9f571860eda289cc276c6418f887b0af42552380c50f4038b5163ea929a386"
+  },
+  "status": "QUALIFIED",
+  "verification": {
+    "compiler_profile": "C11, -Wall, -Wextra, -Werror, -pedantic, -O2, C6 minimum",
+    "hp4_4_inherited_native_cases": 3564,
+    "native_case_count": 35,
+    "native_smoke": "tests/contract/hp5_http_service_smoke.c",
+    "physical_result_created": false,
+    "target_adapter": "firmware/components/wdc_http/wdc_http_platform_espidf.c"
+  }
+}

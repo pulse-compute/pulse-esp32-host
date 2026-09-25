@@ -63,6 +63,17 @@ typedef struct WdcNetStatus {
     WdcNetOperation last_http_request;
 } WdcNetStatus;
 
+/* Host-private paired response bridge.  The network mediator knows only that
+ * an active host service may consume WDC_OP_HTTP_RESPOND; it does not depend
+ * on HTTP listener or administration authority. */
+typedef int32_t (*WdcNetHttpResponseHookFn)(
+    void *context,
+    const uint8_t *request,
+    uint32_t request_len,
+    uint8_t *response,
+    uint32_t response_cap,
+    uint32_t *out_response_len);
+
 const char *wdc_net_state_name(WdcNetState state);
 int32_t wdc_net_init(const WdcDeviceProfile *profile);
 void wdc_net_reset_for_test(void);
@@ -74,6 +85,10 @@ int32_t wdc_net_install_host_bridge(const WdcDeviceProfile *profile);
 int32_t wdc_net_install_host_hook(void);
 void wdc_net_clear_host_bridge(void);
 void wdc_net_clear_host_hook(void);
+int32_t wdc_net_set_http_response_hook(WdcNetHttpResponseHookFn hook,
+                                       void *context);
+void wdc_net_clear_http_response_hook(WdcNetHttpResponseHookFn hook,
+                                      void *context);
 
 int32_t wdc_net_host_call(void *ctx,
                           uint32_t opcode,

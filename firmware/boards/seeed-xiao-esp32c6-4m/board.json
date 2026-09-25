@@ -1,0 +1,14 @@
+{
+  "schema": "pulse.esp32.board-identity.v1",
+  "board_id": "seeed-xiao-esp32c6-4m",
+  "manufacturer": "Seeed Studio",
+  "model": "XIAO ESP32C6",
+  "module": "ESP32-C6FH4",
+  "target": "esp32c6",
+  "isa": "riscv32",
+  "flash_bytes": 4194304,
+  "psram_bytes": 0,
+  "psram_mode": "none",
+  "identity_authority": "operator_attested_named_board",
+  "hp0_observation": "NAMED_BOARD_OBSERVED"
+}

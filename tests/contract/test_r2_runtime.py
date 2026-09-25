@@ -33,7 +33,8 @@ class R2RuntimeTests(unittest.TestCase):
     def test_r2_wamr_component_dependency_is_declared(self) -> None:
         manifest = (RT / "idf_component.yml").read_text(encoding="utf-8")
         self.assertIn("espressif/wasm-micro-runtime", manifest)
-        self.assertIn("^2.4.0~1", manifest)
+        self.assertIn('version: "2.4.0~1"', manifest)
+        self.assertNotIn('"^2.4.0~1"', manifest)
 
         cmake = (RT / "CMakeLists.txt").read_text(encoding="utf-8")
         self.assertIn("wdc_runtime.c", cmake)

@@ -82,6 +82,13 @@ Network calls are native-mediated. The guest may request:
 - `MQTT_SUBSCRIBE`,
 - `HTTP_REQUEST`.
 
+HP5 also delivers registered inbound application routes as
+`WDC_EVENT_HTTP_REQUEST`. While handling that event, the guest may call
+`HTTP_RESPOND` once with the exact request ID, status code, and a bounded body.
+The first valid response wins; late, duplicate, cancelled, or mismatched
+responses fail closed. Administrative HTTP routes are host-private and never
+arrive as guest events.
+
 The shell enforces topic/URL/method/payload/rate policy. The guest should treat denial as normal and recoverable.
 
 ## Error handling
@@ -138,4 +145,3 @@ python3 tools/wasm_inspect.py path/to/app.wasm \
 ```
 
 This check requires a locally built guest. Install `cargo`/`rustc` and run `make build-guest` first when the toolchain is not already available.
-

@@ -1,0 +1,173 @@
+{
+  "categories": [
+    {
+      "evidence": [
+        "HX2:21-pre-lifecycle-rejections"
+      ],
+      "id": "admission-rejection",
+      "required_outcome": "reject-before-relocation-or-lifecycle; zero lifecycle calls",
+      "reset_policy": "not-required"
+    },
+    {
+      "evidence": [
+        "HX3:init-failure-reverse-unwind",
+        "HX3:start-failure-before-task",
+        "HX5a:bind-failure-is-retryable",
+        "HX5a:init-failure-reverse-unwind",
+        "HX5a:start-failure-reverse-unwind"
+      ],
+      "id": "reversible-pre-start-lifecycle",
+      "required_outcome": "reverse-order cleanup; no retained task; clean unload remains available",
+      "reset_policy": "not-required-when-cleanup-is-proven"
+    },
+    {
+      "evidence": [
+        "HX3:happy-lifecycle",
+        "HX3:repeated-lifecycle-cycles",
+        "HX4:bounded-event-effect-roundtrip"
+      ],
+      "id": "cooperative-running-lifecycle",
+      "required_outcome": "bounded invoke, quiesce, deinitialize, and unload with no retained ownership",
+      "reset_policy": "not-required-when-quiescence-and-cleanup-are-proven"
+    },
+    {
+      "evidence": [
+        "HX3:unhealthy-probation",
+        "HX3:quiescence-timeout-reset",
+        "HX5a:health-probation-failure-requires-reset",
+        "HX5a:invoke-fault-requires-reset",
+        "HX5a:quiesce-fault-requires-reset",
+        "HX5a:quiesce-health-fault-requires-reset",
+        "HX5a:deinit-fault-requires-reset",
+        "HX5a:partial-unload-fault-requires-reset"
+      ],
+      "id": "uncertain-native-ownership",
+      "required_outcome": "latch fault provenance and reject continued lifecycle use until reset",
+      "reset_policy": "required"
+    },
+    {
+      "evidence": [
+        "HX4.5:wasm-trap-during-event",
+        "HX4.5:extension-fault-during-operation"
+      ],
+      "id": "runtime-trap-or-extension-fault",
+      "required_outcome": "contain the failed dispatch, preserve explicit status, and retain reset policy",
+      "reset_policy": "runtime-trap-is-contained; native-fault-is-reset-required"
+    },
+    {
+      "evidence": [
+        "HX4.5:unknown-event-identity",
+        "HX4.5:event-queue-full",
+        "HX4.5:oversized-event-frame",
+        "HX4.5:expired-deadline",
+        "HX4.5:duplicate-completion",
+        "HX4.5:completion-after-quiescence"
+      ],
+      "id": "bounded-pressure-or-contract-rejection",
+      "required_outcome": "return the exact bounded rejection without corrupting lifecycle state",
+      "reset_policy": "not-required-unless-native-ownership-becomes-uncertain"
+    }
+  ],
+  "deferred_to_hx5b": [
+    "sustained queue saturation and recovery",
+    "deadline and late-completion storms",
+    "repeated trap and native-fault cycles under memory pressure",
+    "targeted AITRIP ESP32-S3 and XIAO ESP32C6 hardware reruns"
+  ],
+  "hardware_baselines": [
+    {
+      "board": "AITRIP ESP32-S3-DevKitC-1 N8R2",
+      "evidence_binding": "external-not-ingested-by-hx5a",
+      "prior_classification": "NAMED_BOARD_OBSERVED",
+      "target": "esp32s3"
+    },
+    {
+      "board": "Seeed Studio XIAO ESP32C6",
+      "evidence_binding": "external-not-ingested-by-hx5a",
+      "prior_classification": "NAMED_BOARD_OBSERVED",
+      "target": "esp32c6"
+    }
+  ],
+  "inherited_corpora": [
+    {
+      "case_count": 21,
+      "id": "HX2-admission",
+      "runtime": "host-executed"
+    },
+    {
+      "case_count": 12,
+      "id": "HX3-lifecycle",
+      "runtime": "host-executed"
+    },
+    {
+      "case_count": 1,
+      "id": "HX4-event-effect-happy-path",
+      "runtime": "host-and-real-wasm-executed"
+    },
+    {
+      "case_count": 11,
+      "id": "HX4.5-adversarial",
+      "runtime": "host-and-real-wasm-executed"
+    }
+  ],
+  "pass": "HX5a",
+  "phase": "FAULT_MODEL_HARDENED",
+  "schema": "pulse.esp32.hx5a-extension-fault-model.v1",
+  "scope": "fault inventory, deterministic lifecycle injection, cleanup tightening, and unified host report",
+  "transitions": [
+    {
+      "case": "bind-failure-is-retryable",
+      "id": "services-bind-return",
+      "injection_symbol": "WDC_EXTENSION_TEST_FAULT_SERVICES_BIND_RETURN",
+      "recovery": "unbind and permit retry"
+    },
+    {
+      "case": "init-failure-reverse-unwind",
+      "id": "init-return",
+      "injection_symbol": "WDC_EXTENSION_TEST_FAULT_INIT_RETURN",
+      "recovery": "reverse deinitialize including the partially initialized candidate"
+    },
+    {
+      "case": "start-failure-reverse-unwind",
+      "id": "start-return",
+      "injection_symbol": "WDC_EXTENSION_TEST_FAULT_START_RETURN",
+      "recovery": "reverse bounded quiesce then reverse deinitialize"
+    },
+    {
+      "case": "health-probation-failure-requires-reset",
+      "id": "health-return",
+      "injection_symbol": "WDC_EXTENSION_TEST_FAULT_HEALTH_RETURN",
+      "recovery": "attempt bounded quiesce and preserve reset-required"
+    },
+    {
+      "case": "invoke-fault-requires-reset",
+      "id": "invoke-return",
+      "injection_symbol": "WDC_EXTENSION_TEST_FAULT_INVOKE_RETURN",
+      "recovery": "latch reset-required"
+    },
+    {
+      "case": "quiesce-fault-requires-reset",
+      "id": "quiesce-return",
+      "injection_symbol": "WDC_EXTENSION_TEST_FAULT_QUIESCE_RETURN",
+      "recovery": "latch reset-required"
+    },
+    {
+      "case": "quiesce-health-fault-requires-reset",
+      "id": "quiesce-health-return",
+      "injection_symbol": "WDC_EXTENSION_TEST_FAULT_QUIESCE_HEALTH_RETURN",
+      "recovery": "reject unproven quiescence and latch reset-required"
+    },
+    {
+      "case": "deinit-fault-requires-reset",
+      "id": "deinit-return",
+      "injection_symbol": "WDC_EXTENSION_TEST_FAULT_DEINIT_RETURN",
+      "recovery": "retain candidate evidence and latch reset-required"
+    },
+    {
+      "case": "partial-unload-fault-requires-reset",
+      "id": "unload-return",
+      "injection_symbol": "WDC_EXTENSION_TEST_FAULT_UNLOAD_RETURN",
+      "recovery": "retain failed candidate evidence and latch reset-required after partial unload"
+    }
+  ]
+}

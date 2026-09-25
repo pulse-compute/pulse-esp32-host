@@ -66,12 +66,19 @@ typedef struct WdcRuntimeReport {
     char error[WDC_RUNTIME_ERROR_MAX];
 } WdcRuntimeReport;
 
+#ifndef ESP_PLATFORM
+typedef int32_t (*WdcRuntimeHostStubEventFn)(void *ctx,
+                                             const uint8_t *event_cbor,
+                                             uint32_t event_len);
+#endif
+
 typedef struct WdcRuntime {
     WdcRuntimeConfig config;
     WdcRuntimeReport report;
     const uint8_t *wasm_bytes;
     uint32_t wasm_len;
     void *backend_runtime;
+    void *backend_wasm_buffer;
     void *backend_module;
     void *backend_module_inst;
     void *backend_exec_env;
@@ -79,6 +86,10 @@ typedef struct WdcRuntime {
     void *backend_func_on_event;
     void *backend_func_health;
     void *backend_func_shutdown;
+#ifndef ESP_PLATFORM
+    WdcRuntimeHostStubEventFn host_stub_event_fn;
+    void *host_stub_event_ctx;
+#endif
 } WdcRuntime;
 
 WdcRuntimeConfig wdc_runtime_default_config(void);
@@ -91,6 +102,11 @@ int32_t wdc_runtime_call_init(WdcRuntime *runtime);
 int32_t wdc_runtime_call_on_event(WdcRuntime *runtime, uint32_t event_ptr, uint32_t event_len);
 int32_t wdc_runtime_call_event_cbor(WdcRuntime *runtime, const uint8_t *event_cbor, uint32_t event_len);
 int32_t wdc_runtime_dispatch_event(WdcRuntime *runtime, const WdcEvent *event);
+#ifndef ESP_PLATFORM
+void wdc_runtime_set_host_stub_event_hook(WdcRuntime *runtime,
+                                          WdcRuntimeHostStubEventFn fn,
+                                          void *ctx);
+#endif
 int32_t wdc_runtime_call_health(WdcRuntime *runtime);
 int32_t wdc_runtime_call_shutdown(WdcRuntime *runtime, int32_t reason);
 void wdc_runtime_teardown(WdcRuntime *runtime);

@@ -1,0 +1,6 @@
+# Compile-only ESP32-C6 realization. This is not a deployable board profile.
+CONFIG_PARTITION_TABLE_CUSTOM=y
+CONFIG_PARTITION_TABLE_CUSTOM_FILENAME="partitions/compile-16m-no-psram.csv"
+CONFIG_ESPTOOLPY_FLASHSIZE_16MB=y
+# The pinned ESP32-C6 Kconfig exposes no supported SPIRAM symbols. Their
+# absence, rather than an unknown-symbol assignment, defines this compile lane.

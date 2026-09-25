@@ -1,0 +1,111 @@
+{
+  "aggregate": "HOST_ADMINISTRATION_ADVERSARIAL_SEALED",
+  "authority_bindings": {
+    "hp1_model_sha256": "cc3afbfc4ff7d4a7b5b5aca6ae0b5953a34065501bbfea36d4580a2d193fd84d",
+    "hp2_model_sha256": "f9dc94e2ea4bf45af14787671c9fd2ddfb71c888874c6ea8e722cdf0ec5da3f0",
+    "hp3_5_evidence_index_sha256": "3c7d209298ea0f4444991ec296f9b644bbb42428f1d63d7b475468ce2d71a6e9",
+    "hp3_5_model_sha256": "c52993ff889a3dffe2f87f54bd226e652592018410a24ad36b70592c35219a29",
+    "hp3_model_sha256": "79a5c85d8f75ac89ef9903bd8ee54f9400d8754a8c4deb806ab6644dc5e43f38",
+    "hp4_0_model_sha256": "c20f13c6c5817435a686837a70f5a9bd5b6802b020dad0a47ea2f29713f1f684",
+    "hp4_1_model_sha256": "c908deb69c830418c971c9de355e0d319f1e1dd2e2e71c728bdc535434c9a31a",
+    "hp4_2_model_sha256": "38f3c9f80204c655d318de5348d083efc754b9114a2e3ee174546c8666d745ea",
+    "hp4_3_model_sha256": "36ac4f1a0cba50c576de9ea0fc071920240c953a89ff09cfc3ef92839649a690"
+  },
+  "claim": {
+    "administration_adversarial_sealed": true,
+    "application_code_executed": false,
+    "classification": "HOST_NATIVE_ADMINISTRATION_ADVERSARIAL_ONLY",
+    "factory_host_writable": false,
+    "firmware_component_linked": true,
+    "host_firmware_ota_implemented": false,
+    "network_transport_implemented": false,
+    "partition_layout_changed": false,
+    "physical_execution": false,
+    "production_authenticator_implemented": false,
+    "production_cryptography": false,
+    "serial_driver_implemented": false,
+    "target_build_executed": false
+  },
+  "coverage": {
+    "authorization_and_replay": "unauthorized, expired, stale, replayed, duplicate, out-of-order, backoff, epoch, nonce, ticket, and sequence-exhaustion paths reject before mutation",
+    "capacity_and_reserve": "ticket, replay, terminal, audit, application, administration, recovery, ISR, and exclusive-resource saturation preserve HP1's fixed administration and recovery reserves",
+    "journal_and_boot": "every erase, record-body, and commit-marker prefix for both candidate records preserves a deterministic last-confirmed or no-viable authority",
+    "quiesce_and_unload": "guest/refinement refusal, timeout, trap, failure, and reordered evidence cannot enter update or consume the exclusive reserve",
+    "recovery": "automatic no-viable and administrative recovery interactions preserve host-only control, explicit abort/status, and HP3-owned reboot selection",
+    "stream_and_verification": "every safe artifact byte-prefix cut plus malformed shape, wrong transaction, timeout, rate, abort race, artifact, bundle, compatibility, security-floor, authority, and verifier rejects fail closed"
+  },
+  "deferred": [
+    "HP5 network transport behind the same authenticated administration entry",
+    "HP5.5 combined physical administration and web evidence",
+    "UART or USB serial driver and physical-board execution",
+    "Wi-Fi, TLS, HTTP, MQTT, or another network transport",
+    "external ESP32 provider or Pulse-core change",
+    "RAX or another deployment envelope",
+    "host-firmware, bootloader, factory-host, or partition-table OTA",
+    "redundant-versus-capacity partition redesign",
+    "production signing, authentication, provisioning, or key lifecycle"
+  ],
+  "finding": {
+    "disposition": "FIXED_AND_REGRESSION_LOCKED",
+    "mutation_rule": "no ticket allocation, replay high-water advance, mode change, control-lane admission, terminal, audit, or slot mutation",
+    "name": "COMMAND_SEQUENCE_EXHAUSTION_REJECTED_PREACCEPT",
+    "rejection": "WDC_ADMIN_REJECTION_RATE_LIMITED",
+    "recovery": "the exhausted session remains closable; a strictly newer authenticated epoch starts a fresh session at sequence one"
+  },
+  "invariants": {
+    "accepted_terminal": "every accepted command produces exactly one retained first-terminal-wins completion",
+    "application_pressure": "application work cannot consume the administration or safety-recovery lanes or prevent status, abort, or recovery control",
+    "boot_authority": "HP3 remains the sole durable slot, last-confirmed, trial, fallback, and reboot-selection authority",
+    "journal_failure": "no interrupted candidate record becomes authoritative and the last confirmed record is preserved whenever one exists",
+    "preaccept": "every rejection occurs before a ticket, replay advance, mode transition, control enqueue, audit record, terminal record, or slot mutation",
+    "private_surface": "administration remains absent from the guest ABI and native-extension SDK",
+    "resource_authority": "HP1 scheduling, fixed memory, exclusive admission, and reserved control lanes are unchanged",
+    "stream_failure": "every failure before durable trial handoff aborts staging and returns to NORMAL or RECOVERY according to transaction origin"
+  },
+  "matrix": {
+    "aggregate_native_case_count": 3564,
+    "categories": [
+      {"case_count": 21, "name": "preaccept-and-mutation"},
+      {"case_count": 13, "name": "authorization-and-replay"},
+      {"case_count": 12, "name": "quiesce-and-unload"},
+      {"case_count": 4, "name": "resource-floor"},
+      {"case_count": 2362, "name": "safe-stream-cut"},
+      {"case_count": 14, "name": "stream-transaction"},
+      {"case_count": 9, "name": "verification-rejection"},
+      {"case_count": 1030, "name": "journal-interruption"},
+      {"case_count": 10, "name": "capacity-saturation"},
+      {"case_count": 8, "name": "terminal-and-audit"},
+      {"case_count": 40, "name": "recovery-interaction"}
+    ],
+    "inherited_native_case_count": 41,
+    "journal_formula": "2 target records * ((256 + 1) erase prefixes + (252 + 1) record-body prefixes + (4 + 1) commit-marker prefixes) = 1030",
+    "new_native_case_count": 3523,
+    "safe_stream_formula": "complete stored artifact bytes 2361 + empty prefix = 2362"
+  },
+  "pass": "HP4.4",
+  "phase": "ADMINISTRATION_ADVERSARIAL_SEAL",
+  "schema": "pulse.esp32.hp4_4-administration-adversarial-seal.v1",
+  "source_history": {
+    "current_firmware_file_count": 150,
+    "current_firmware_sha256": "ff9f571860eda289cc276c6418f887b0af42552380c50f4038b5163ea929a386",
+    "current_native_sdk_file_count": 1,
+    "current_native_sdk_sha256": "a7ceb397ab009950a1ebbdea60280f7944020a6523252b7de0d781e3e798bdd4",
+    "hp4_3_archive_manifest_file_count": 469,
+    "hp4_3_archive_sha256": "78407faf0981ac1d8d39f449136c613ee9aa4ca92ca168715ea0aed1b5f38eee",
+    "hp4_3_firmware_file_count": 150,
+    "hp4_3_firmware_sha256": "d36978214d8e1d892961e7239facafa49eb1ed4150843dd1eeb23dec5d8ceb5f",
+    "hp4_3_native_sdk_file_count": 1,
+    "hp4_3_native_sdk_sha256": "a7ceb397ab009950a1ebbdea60280f7944020a6523252b7de0d781e3e798bdd4"
+  },
+  "status": "SEALED",
+  "verification": {
+    "compiler_profile": "C11, -Wall -Wextra -Werror -pedantic -O2, C6 minimum",
+    "inherited_native_cases": {
+      "HP4.1": 14,
+      "HP4.2": 15,
+      "HP4.3": 12
+    },
+    "native_smoke": "tests/contract/hp4_4_admin_adversarial_smoke.c",
+    "physical_result_created": false
+  }
+}

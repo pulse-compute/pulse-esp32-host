@@ -10,6 +10,13 @@ manifest capability -> logical resource -> device profile -> native execution
 
 The WASM app never gets direct authority over physical pins or native handles.
 
+The HP2 host profile is separate from this physical device profile. The current
+S3 and C6 host profiles advertise `pulse.application-slots.v1` together with
+Wasm, event/effect, and native-refinement support. An HP3 artifact must require
+the slot capability and pass the running fingerprint before it can be trialed;
+the application cannot use that capability to choose, erase, or confirm a
+slot.
+
 ## Example device profile
 
 The checked-in example is:
@@ -143,4 +150,3 @@ When adding a resource, define all of the following before adding guest access:
 6. host-call opcode or event type,
 7. safety behavior on boot/no-bundle/fault,
 8. negative-path tests for unauthorized, invalid, wrong-kind, rate-limited, and oversized requests.
-

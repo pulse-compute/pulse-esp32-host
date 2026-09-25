@@ -1574,17 +1574,22 @@ That is the product-defining capability.
 
 ---
 
-## R9 status note
+## R9 and host-platform status note
 
-The scaffold has implemented the roadmap through R9 and added hardening passes R8.1 and R8.2. The next recommended work is not broad feature expansion; it is target validation and production hardening:
+The scaffold has implemented the roadmap through R9, added hardening passes
+R8.1 and R8.2, closed the HP1–HP5 host-platform source authorities, and
+implemented the HP5.5 dual-board execution/evidence harness. HP5.5 remains a
+physical acceptance barrier: source readiness is not the two-board result.
+The next recommended work is not broad feature expansion; it is the frozen
+physical campaign and production hardening:
 
 ```text
-1. Build in a real ESP-IDF environment.
-2. Build Rust guest WASM examples.
-3. Wire production signature verification to vetted crypto.
-4. Run hardware-in-loop safe-state and rollback validation.
-5. Run OTA metadata/slot power-loss tests.
-6. Integrate real native Wi-Fi/MQTT/HTTP transport behind the R8 mediator.
+1. Execute and accept HP5.5 on the exact AITRIP S3 N8R2 and XIAO C6 boards.
+2. Wire production signature verification and credential/key lifecycle to vetted crypto.
+3. Preserve the existing accepted safe-state/rollback evidence and extend only through explicit campaigns.
+4. Keep HP6 thin external provider work blocked until HP5.5 acceptance.
+5. After HP6, implement HP7 MQTT customer zero and the HP7.5 MQTT adversarial dual-board seal.
+6. Finish with HP8 external conformance and reconciliation.
 ```
 
 See `docs/STATUS.md`, `docs/TESTING.md`, and `docs/runbooks/HARDWARE_BRINGUP.md` for current bounded gaps.

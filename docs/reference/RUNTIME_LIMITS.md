@@ -42,6 +42,43 @@ The following are specified or represented, but need target/runtime-backed enfor
 - lifecycle timeout enforcement with target watchdog/task integration;
 - max outstanding async requests for real network operations.
 
+## Native-extension proof budgets
+
+HX3 separately admits one target-native refinement task, a 4,096-byte stack,
+3,072 bytes of static state/control backing, and one four-by-64-byte static
+queue. The ELF inspector verifies the allocated writable sections fit the
+declared 7,424-byte combined backing before relocation. These are extension
+proof budgets, not Wasm manifest limits, and their target heap effect remains
+unmeasured without hardware. See
+[HX3 extension lifecycle](../HX3_EXTENSION_LIFECYCLE.md).
+
+## HP1 host-control and admission budgets
+
+HP1 adds a lower host-owned gate before guest runtime limits are installed. The
+C6 minimum profile reserves 98,304 bytes for fixed task stacks, static
+queue/ticket state, metadata, administration, verification, and recovery. It
+then checks normal, quiesce-transition, and exclusive-update totals plus the
+largest contiguous internal block. The application cannot request a priority
+or unbounded allocation. S3 external memory must be declared and produces a
+non-portable admission classification; it never reduces the internal control
+reserve. See [HP1 resource authority](../HP1_HOST_KERNEL_RESOURCE_AUTHORITY.md).
+
+## HP4 protected-administration bounds
+
+HP4.0 freezes a separate host-private budget: one session, one accepted
+command, a 2,048-byte transport frame, 1,024-byte payload/stream chunk,
+1,024-byte status response, 64-byte terminal record, and 32 fixed 160-byte
+audit records. Quiescence is bounded to 10 seconds; command, stream-idle, and
+session-idle windows are 30 seconds; session and update transactions are
+bounded to 15 minutes. These values fit inside the existing HP1
+administration/control plan and do not increase the 98,304-byte reserve.
+
+HP4.1 demonstrates the fixed storage and rate/replay behavior in host-native
+execution: the observed 7,712-byte core plus 2,072-byte serial adapter totals
+9,784 bytes, below HP1's 12,288-byte administration reserve. This is not a
+target linker/RAM observation, UART execution result, or production
+authentication/cryptography qualification.
+
 ## Limit-change process
 
 When changing limits:

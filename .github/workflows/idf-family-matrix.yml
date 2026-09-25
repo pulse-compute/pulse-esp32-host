@@ -1,0 +1,34 @@
+name: ESP-IDF family matrix
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qualify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - name: Check out source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      - name: Qualify pinned ESP-IDF family matrix
+        env:
+          WDC_IDF_MATRIX_OUT_DIR: reports/idf-family/if6-${{ github.sha }}
+          WDC_IDF_TIMEOUT_SECONDS: "1800"
+        run: tools/run_pinned_idf_matrix.sh
+
+      - name: Upload complete IF6 evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: idf-family-if6-${{ github.sha }}
+          path: reports/idf-family/
+          if-no-files-found: error
+          retention-days: 30

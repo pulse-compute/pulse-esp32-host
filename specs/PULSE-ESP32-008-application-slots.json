@@ -1,0 +1,108 @@
+{
+  "schema": "pulse.esp32.hp3-application-slot-authority.v1",
+  "pass": "HP3",
+  "phase": "APPLICATION_SLOT_AUTHORITY_FALLBACK",
+  "status": "FROZEN",
+  "artifact": {
+    "format": "PULSE_APPLICATION_ARTIFACT_V1",
+    "header_bytes": 192,
+    "magic": "PASP",
+    "manifest_fields": [
+      "total_bytes",
+      "bundle_bytes",
+      "application_version",
+      "security_counter",
+      "host_requirements",
+      "bundle_sha256",
+      "application_id_sha256",
+      "header_crc32"
+    ],
+    "inner_payload": "WDC_SIGNED_BUNDLE",
+    "rax": false
+  },
+  "slots": {
+    "count": 2,
+    "storage": "FLASH_RESIDENT",
+    "application_runtime": "ONE_WASM_RESIDENT",
+    "esp32c6_slot_bytes": 917504,
+    "esp32s3_slot_bytes": 2097152,
+    "metadata_partition_bytes": 65536,
+    "stage_target": "INACTIVE_ONLY",
+    "preserve_last_confirmed_until_replacement_confirmed": true
+  },
+  "states": [
+    "EMPTY",
+    "STAGED",
+    "VERIFIED",
+    "TRIAL",
+    "CONFIRMED",
+    "REJECTED"
+  ],
+  "metadata": {
+    "journal_records": 2,
+    "selection": "HIGHEST_VALID_GENERATION",
+    "commit_marker_written_last": true,
+    "one_corrupt_record_recoverable": true,
+    "exhaustive_power_loss_matrix": "DEFERRED_HP3_5"
+  },
+  "staging": {
+    "sequential_streaming": true,
+    "whole_artifact_sha256": true,
+    "inner_bundle_sha256": true,
+    "inner_bundle_signature_verification": true,
+    "production_artifact_authority_required": true,
+    "security_version_floor": true,
+    "hp2_static_compatibility_before_commit": true,
+    "application_code_launched": false
+  },
+  "boot": {
+    "trial_attempt_persisted_before_launch": true,
+    "reset_attribution": [
+      "POWER_ON",
+      "HOST_SOFTWARE",
+      "GUEST_TRAP",
+      "APPLICATION_WATCHDOG",
+      "HOST_WATCHDOG",
+      "UNKNOWN"
+    ],
+    "hp2_fingerprint_check_before_launch": true,
+    "hp1_live_resource_admission_before_launch": true,
+    "fallback_requires_reboot": true,
+    "neither_slot_viable": "EXPLICIT_RECOVERY"
+  },
+  "confirmation": {
+    "owner": "HOST",
+    "minimum_stable_ms": 30000,
+    "readiness_deadline_ms": 60000,
+    "requires_readiness": true,
+    "requires_health_check": true,
+    "requires_administration_responsive": true,
+    "requires_resource_floors_preserved": true,
+    "application_self_confirmation": false
+  },
+  "host_profiles": {
+    "capability": "pulse.application-slots.v1",
+    "esp32c6": "esp32c6-portable-slots-v1",
+    "esp32s3": "esp32s3-psram-slots-v1"
+  },
+  "preserved_authorities": {
+    "hp1_resource_authority_sha256": "cc3afbfc4ff7d4a7b5b5aca6ae0b5953a34065501bbfea36d4580a2d193fd84d",
+    "native_extension_abi_sha256": "e92aaae33b4016f5e3d1ac41f34fac0b19569c7f0bbabba6ce3d4e2604f6e023",
+    "common_wasm_sha256": "ef8b21a4b7a423923c09f5e38fc626ff7d1cda856c4935db7f191695a333e5c4"
+  },
+  "excluded": [
+    "RAX",
+    "HOST_FIRMWARE_OTA",
+    "MQTT_OR_TRANSPORT_IMPLEMENTATION",
+    "EXTERNAL_PROVIDER",
+    "PULSE_CORE_CHANGES",
+    "PHYSICAL_POWER_LOSS_CAMPAIGN"
+  ],
+  "synthetic_seal": {
+    "case_count": 14,
+    "artifact_header_bytes": 192,
+    "application_code_launched": false,
+    "last_confirmed_preserved": true,
+    "recovery_explicit": true
+  }
+}

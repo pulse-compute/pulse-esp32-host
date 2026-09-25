@@ -21,6 +21,8 @@ static WdcHostGpioReadFn s_gpio_read_hook;
 static void *s_gpio_hook_ctx;
 static WdcHostNetCallFn s_net_hook;
 static void *s_net_hook_ctx;
+static WdcHostEffectCallFn s_effect_hook;
+static void *s_effect_hook_ctx;
 static WdcHostCallLimits s_limits = { WDC_MAX_REQUEST_BYTES_DEFAULT, WDC_MAX_RESPONSE_BYTES_DEFAULT };
 
 void wdc_host_call_set_authorizer(WdcHostAuthorizeFn fn, void *ctx)
@@ -94,6 +96,26 @@ void wdc_host_call_clear_net_hook(void)
     s_net_hook_ctx = NULL;
 }
 
+int32_t wdc_host_call_set_effect_hook(WdcHostEffectCallFn effect_fn, void *ctx)
+{
+    if (effect_fn == NULL) {
+        return WDC_ERR_BAD_POINTER;
+    }
+    if (s_effect_hook != NULL &&
+        (s_effect_hook != effect_fn || s_effect_hook_ctx != ctx)) {
+        return WDC_ERR_BUSY;
+    }
+    s_effect_hook = effect_fn;
+    s_effect_hook_ctx = ctx;
+    return WDC_OK;
+}
+
+void wdc_host_call_clear_effect_hook(void)
+{
+    s_effect_hook = NULL;
+    s_effect_hook_ctx = NULL;
+}
+
 void wdc_host_call_reset_for_test(void)
 {
     s_gpio_levels[0] = 0;
@@ -106,6 +128,7 @@ void wdc_host_call_reset_for_test(void)
     wdc_host_call_reset_limits();
     wdc_host_call_clear_gpio_hooks();
     wdc_host_call_clear_net_hook();
+    wdc_host_call_clear_effect_hook();
 }
 
 const char *wdc_opcode_name(uint32_t opcode)
@@ -129,12 +152,14 @@ const char *wdc_opcode_name(uint32_t opcode)
     case WDC_OP_MQTT_PUBLISH: return "WDC_OP_MQTT_PUBLISH";
     case WDC_OP_MQTT_SUBSCRIBE: return "WDC_OP_MQTT_SUBSCRIBE";
     case WDC_OP_HTTP_REQUEST: return "WDC_OP_HTTP_REQUEST";
+    case WDC_OP_HTTP_RESPOND: return "WDC_OP_HTTP_RESPOND";
     case WDC_OP_BLE_SET_VALUE: return "WDC_OP_BLE_SET_VALUE";
     case WDC_OP_BLE_NOTIFY: return "WDC_OP_BLE_NOTIFY";
     case WDC_OP_BLE_ADVERTISE_SET: return "WDC_OP_BLE_ADVERTISE_SET";
     case WDC_OP_KV_GET: return "WDC_OP_KV_GET";
     case WDC_OP_KV_SET: return "WDC_OP_KV_SET";
     case WDC_OP_KV_DELETE: return "WDC_OP_KV_DELETE";
+    case WDC_OP_EFFECT_INVOKE: return "WDC_OP_EFFECT_INVOKE";
     default: return "WDC_OP_UNKNOWN";
     }
 }
@@ -147,9 +172,10 @@ bool wdc_opcode_known(uint32_t opcode)
     case WDC_OP_CONFIG_GET: case WDC_OP_CONFIG_SET: case WDC_OP_CONFIG_DELETE:
     case WDC_OP_GPIO_GET: case WDC_OP_GPIO_SET: case WDC_OP_GPIO_SUBSCRIBE:
     case WDC_OP_SENSOR_READ: case WDC_OP_SENSOR_SUBSCRIBE: case WDC_OP_I2C_TRANSFER:
-    case WDC_OP_NET_STATUS: case WDC_OP_MQTT_PUBLISH: case WDC_OP_MQTT_SUBSCRIBE: case WDC_OP_HTTP_REQUEST:
+    case WDC_OP_NET_STATUS: case WDC_OP_MQTT_PUBLISH: case WDC_OP_MQTT_SUBSCRIBE: case WDC_OP_HTTP_REQUEST: case WDC_OP_HTTP_RESPOND:
     case WDC_OP_BLE_SET_VALUE: case WDC_OP_BLE_NOTIFY: case WDC_OP_BLE_ADVERTISE_SET:
     case WDC_OP_KV_GET: case WDC_OP_KV_SET: case WDC_OP_KV_DELETE:
+    case WDC_OP_EFFECT_INVOKE:
         return true;
     default:
         return false;
@@ -183,7 +209,9 @@ bool wdc_opcode_supported_r8(uint32_t opcode)
            opcode == WDC_OP_NET_STATUS ||
            opcode == WDC_OP_MQTT_PUBLISH ||
            opcode == WDC_OP_MQTT_SUBSCRIBE ||
-           opcode == WDC_OP_HTTP_REQUEST;
+           opcode == WDC_OP_HTTP_REQUEST ||
+           opcode == WDC_OP_HTTP_RESPOND ||
+           opcode == WDC_OP_EFFECT_INVOKE;
 }
 
 bool wdc_opcode_requires_resource(uint32_t opcode)
@@ -191,7 +219,7 @@ bool wdc_opcode_requires_resource(uint32_t opcode)
     switch (opcode) {
     case WDC_OP_GPIO_GET: case WDC_OP_GPIO_SET: case WDC_OP_GPIO_SUBSCRIBE:
     case WDC_OP_SENSOR_READ: case WDC_OP_SENSOR_SUBSCRIBE: case WDC_OP_I2C_TRANSFER:
-    case WDC_OP_MQTT_PUBLISH: case WDC_OP_MQTT_SUBSCRIBE: case WDC_OP_HTTP_REQUEST:
+    case WDC_OP_MQTT_PUBLISH: case WDC_OP_MQTT_SUBSCRIBE: case WDC_OP_HTTP_REQUEST: case WDC_OP_HTTP_RESPOND:
     case WDC_OP_BLE_SET_VALUE: case WDC_OP_BLE_NOTIFY: case WDC_OP_BLE_ADVERTISE_SET:
     case WDC_OP_KV_GET: case WDC_OP_KV_SET: case WDC_OP_KV_DELETE:
         return true;
@@ -487,7 +515,17 @@ int32_t wdc_host_call_dispatch(uint32_t opcode, const uint8_t *request, uint32_t
     case WDC_OP_MQTT_PUBLISH:
     case WDC_OP_MQTT_SUBSCRIBE:
     case WDC_OP_HTTP_REQUEST:
+    case WDC_OP_HTTP_RESPOND:
         return network_call(opcode, request, request_len, response, response_cap, out_response_len);
+    case WDC_OP_EFFECT_INVOKE:
+        return s_effect_hook != NULL ?
+                   s_effect_hook(s_effect_hook_ctx,
+                                 request,
+                                 request_len,
+                                 response,
+                                 response_cap,
+                                 out_response_len) :
+                   WDC_ERR_NOT_AVAILABLE;
     default: return WDC_ERR_UNSUPPORTED_OPCODE;
     }
 }

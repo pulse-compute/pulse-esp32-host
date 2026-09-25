@@ -1,0 +1,158 @@
+{
+  "schema": "pulse.esp32.hp5_5-network-admin-hardware-campaign.v1",
+  "campaign_id": "hp5_5-dual-network-admin-v1",
+  "pass": "HP5.5",
+  "status": "FROZEN",
+  "execution_status": "NOT_RUN",
+  "predecessor_source_authority": {
+    "archive_name": "pulse-esp32-host-hp5-source-v1.zip",
+    "archive_sha256": "e7df20f0909afbf2b3b8e4bea9b2b5a4ac40682471ea31c60b3ce344405ed347",
+    "archive_bytes": 1181638,
+    "archive_root": "pulse-esp32-host-main",
+    "manifested_files": 489,
+    "manifested_payload_bytes": 3880933,
+    "firmware_sha256": "2e94b65a03a0612d4e770dc0f9b624dab874a75bf334bbd5173023427b7076a5",
+    "firmware_file_count": 159,
+    "guest_sdk_sha256": "bc5a537e98343c030ad03c85427c55b244d954a1b26e91c5796f40ba0185f0b3",
+    "native_sdk_sha256": "a7ceb397ab009950a1ebbdea60280f7944020a6523252b7de0d781e3e798bdd4",
+    "hp5_model_sha256": "4e5a01034ddaa27ed53439dbc8fc605b0647d02afe91e3f051ebe2ffd3163c6f"
+  },
+  "execution_source_authority": {
+    "classification": "NARROW_HP5_5_PHYSICAL_AUDIT_SUCCESSOR",
+    "firmware_sha256": "d60e2669cd3b2dd5869e2305c92e39913b270ba9d54844d3a34d614681c5a98a",
+    "firmware_file_count": 168,
+    "components_sha256": "c34a96f7d08055a54659fead1925da1ee7a776fb016c05309e9d11edb821a4a9",
+    "components_file_count": 127,
+    "main_sha256": "cc7995885e99cf4617706d6ea7c39e7c294c10ef745c1a64d21e331f2b1a001d",
+    "main_file_count": 4,
+    "guest_sdk_sha256": "bc5a537e98343c030ad03c85427c55b244d954a1b26e91c5796f40ba0185f0b3",
+    "guest_sdk_file_count": 13,
+    "native_sdk_sha256": "a7ceb397ab009950a1ebbdea60280f7944020a6523252b7de0d781e3e798bdd4",
+    "native_sdk_file_count": 1,
+    "remediation_path": "firmware/components/wdc_admin/wdc_admin_update.c",
+    "remediation_sha256": "56dd8c17abe534e2f2bc52568401158e96cbbf031c4499258eb1d36c70384686",
+    "model_path": "specs/PULSE-ESP32-015-network-administration-physical-seal.json",
+    "harness": {
+      "path": "tests/hardware-in-loop/hp5_5-network-admin/firmware",
+      "sha256": "b4d8d0de0da3995393c96e21b4747bf20843a1853f578ed64e39afc106ea30cc",
+      "file_count": 5
+    },
+    "fixture_artifacts": {
+      "baseline": {
+        "version": 8,
+        "bytes": 2330,
+        "sha256": "66494cde0275a2d412c2d44a43895ac0d112b1d2ab4fe0747dea8486f0fe3690",
+        "bundle_sha256": "8290f98d2ad364124480a4013cd3b49db26110bf63b511fe43b9bca489378354"
+      },
+      "positive": {
+        "version": 9,
+        "bytes": 2330,
+        "sha256": "31ede939d45e64b493229661c4ca3d151ae49788d97f035d591343ae4bab1b22",
+        "bundle_sha256": "572bb838a11ef0cff407f8fec73d79b3a23e6f5af631b8714cbc2e856a38338f"
+      },
+      "fallback": {
+        "version": 10,
+        "bytes": 2333,
+        "sha256": "c11e9429265b8264ad36e865f6bef15bb94addc60310e66f3c09be954c069810",
+        "bundle_sha256": "f62eadafcad9ac2c6cce37caaffab50b60634c24991957636b82d721004d5704"
+      }
+    }
+  },
+  "environment": {
+    "idf_version": "v5.4.4",
+    "idf_source_commit": "296b6eab9445fd720e71aecab961e2d3fbca9944",
+    "application_port": 443,
+    "administration_port": 8443,
+    "application_control_port": 32768,
+    "administration_control_port": 32769,
+    "max_sockets_per_listener": 3
+  },
+  "board_lanes": [
+    {
+      "board_id": "aitrip-esp32s3-devkitc-1-n8r2",
+      "target": "esp32s3",
+      "flash_bytes": 8388608,
+      "psram_bytes": 2097152,
+      "board_sha256": "543f0e4bad0083d7992c090132615888282ec47b4790278c59881952c484db25",
+      "partitions_sha256": "402d1b72c259f8ca23b5e9fc11a8badc02976ad71684510a2487e6e830e803a0",
+      "plan_sha256": "6dfbe6ce23d4f3fdedefbc1c63dfac5d4f770418ba75c0bdc920ace2b244a50a",
+      "lock_sha256": "88fdf8cf491215342717c0546984660a04211b88b2ff540fdf5e91bb297c8533",
+      "fingerprint_sha256": "ba7ec4000735f4bb1cb64d05c512a8f455d11d9ae50bbe15c46f018209c9b066",
+      "minimum_build_diram_remain_bytes": 1024,
+      "minimum_runtime_internal_free_bytes": 180000,
+      "minimum_runtime_largest_block_bytes": 65536,
+      "minimum_runtime_psram_free_bytes": 1048576
+    },
+    {
+      "board_id": "seeed-xiao-esp32c6-4m",
+      "target": "esp32c6",
+      "flash_bytes": 4194304,
+      "psram_bytes": 0,
+      "board_sha256": "a87a5dc33b8460065582b4aacdb596132151a6c380fe44d25bb0da679028f915",
+      "partitions_sha256": "b5f67b82e686b9b613937d1670297da29d1535f9ecc580fa0ec57fe9a73d622f",
+      "plan_sha256": "f20a4ad3f38382ca531cfe5e7c579acba2894eef8523388c156605dcb6c17772",
+      "lock_sha256": "9114579dc7e213dcec95effaaa1fb400961d93e6a2c9fb204cb3bc40112b2053",
+      "fingerprint_sha256": "6fe1b5728634e2eed8564e8cc9fb0d0d32f72c7fe8c04240035f71dacbd504ee",
+      "minimum_build_diram_remain_bytes": 65536,
+      "minimum_runtime_internal_free_bytes": 163840,
+      "minimum_runtime_largest_block_bytes": 65536,
+      "minimum_runtime_psram_free_bytes": 0
+    }
+  ],
+  "guardrails": {
+    "named_board_identity_required": true,
+    "operator_attested_marking_required": true,
+    "full_flash_backup_required": true,
+    "fresh_full_flash_erase_required": true,
+    "restore_path_required": true,
+    "test_provisioning_external_to_source": true,
+    "secrets_forbidden_in_retained_evidence": true,
+    "new_target_contracts_required": true,
+    "historical_hp2_authorities_must_remain_unchanged": true,
+    "application_and_admin_listener_separation_required": true,
+    "exclusive_update_required_on_both_targets": true,
+    "factory_host_partition_write_allowed": false,
+    "host_firmware_ota": false,
+    "bootloader_ota": false,
+    "partition_table_ota": false,
+    "partition_redesign": false,
+    "external_provider": false,
+    "mqtt": false,
+    "rax": false
+  },
+  "checkpoints": [
+    {"id": "target-boot-fingerprint", "owner": "firmware"},
+    {"id": "station-associated", "owner": "firmware"},
+    {"id": "tls-listeners-separated", "owner": "client"},
+    {"id": "common-wasm-app-response", "owner": "client"},
+    {"id": "app-empty-response", "owner": "client"},
+    {"id": "app-first-response-wins", "owner": "client"},
+    {"id": "app-wrong-id-rejected", "owner": "client"},
+    {"id": "app-oversize-rejected", "owner": "client"},
+    {"id": "app-trap-contained", "owner": "client"},
+    {"id": "app-timeout-contained", "owner": "client"},
+    {"id": "app-cancellation-contained", "owner": "client"},
+    {"id": "app-client-loss-counted", "owner": "firmware"},
+    {"id": "bounded-wifi-reconnect", "owner": "firmware"},
+    {"id": "authenticated-admin-session", "owner": "client"},
+    {"id": "admin-negative-preaccept", "owner": "client"},
+    {"id": "admin-capacity-under-app-pressure", "owner": "client"},
+    {"id": "accepted-command-terminal", "owner": "client"},
+    {"id": "admin-terminal-retained-after-client-loss", "owner": "client"},
+    {"id": "admin-terminal-response-loss-counted", "owner": "firmware"},
+    {"id": "update-abort-preserves-confirmed", "owner": "client"},
+    {"id": "update-quiesce-stage-verify", "owner": "firmware"},
+    {"id": "durable-trial-reboot-handoff", "owner": "firmware"},
+    {"id": "trial-confirmed", "owner": "firmware"},
+    {"id": "stale-trial-fallback", "owner": "firmware"},
+    {"id": "administrative-recovery", "owner": "client"},
+    {"id": "authorization-rate-and-session-recovery", "owner": "client"},
+    {"id": "no-viable-slot-administration", "owner": "client"},
+    {"id": "resource-floors-under-pressure", "owner": "firmware"},
+    {"id": "network-loss-no-rollback-or-cancel", "owner": "firmware"}
+  ],
+  "promotion": {
+    "both_complete_named_board_runs": "DUAL_NAMED_BOARD_HP5_NETWORK_ADMIN_OBSERVED",
+    "single_missing_synthetic_or_unbound_run": "HARDWARE_PENDING"
+  }
+}

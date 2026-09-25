@@ -1,11 +1,18 @@
 #pragma once
 
-#define WDC_SHELL_NAME        "wdc-esp32s3-shell"
+#ifdef ESP_PLATFORM
+#include "sdkconfig.h"
+#define WDC_SHELL_TARGET CONFIG_IDF_TARGET
+#else
+#define WDC_SHELL_TARGET "host"
+#endif
+
+#define WDC_SHELL_NAME        "wdc-" WDC_SHELL_TARGET "-shell"
 #define WDC_SHELL_VERSION     "0.1.0-r9"
 #define WDC_SHELL_BUILD_STAGE "R9"
 
 #ifndef WDC_SHELL_BUILD_ID
-#define WDC_SHELL_BUILD_ID __DATE__ " " __TIME__
+#define WDC_SHELL_BUILD_ID WDC_SHELL_VERSION "-" WDC_SHELL_BUILD_STAGE
 #endif
 
 /* R9 keeps production non-effectful, enforces manifest runtime limits, and adds production security preflight/signature policy. */

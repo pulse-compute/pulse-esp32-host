@@ -2,36 +2,22 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-LOG_DIR="$ROOT/reports/logs"
+CELL="${WDC_IDF_CELL:-esp32s3-reference}"
+MATRIX="${WDC_IDF_MATRIX:-$ROOT/firmware/idf-family-matrix.json}"
+OUT_DIR="${WDC_IDF_OUT_DIR:-$ROOT/reports/idf-family/$CELL}"
+TIMEOUT="${WDC_IDF_TIMEOUT_SECONDS:-1800}"
+LOG_DIR="${WDC_LOG_DIR:-$ROOT/reports/logs}"
 mkdir -p "$LOG_DIR"
 LOG="$LOG_DIR/firmware_build.log"
 : > "$LOG"
 exec > >(tee -a "$LOG") 2>&1
 
-export PATH="$HOME/.cargo/bin:$PATH"
+echo "[if3] building matrix cell $CELL in an isolated project"
+echo "[if3] evidence directory: $OUT_DIR"
+python3 -B "$ROOT/tools/build_idf_cell.py" \
+  --matrix "$MATRIX" \
+  --cell "$CELL" \
+  --out-dir "$OUT_DIR" \
+  --timeout "$TIMEOUT"
 
-if ! command -v idf.py >/dev/null 2>&1; then
-  for candidate in "${IDF_PATH:-}/export.sh" "/opt/esp/esp-idf/export.sh" "$HOME/esp/esp-idf/export.sh"; do
-    if [ -n "$candidate" ] && [ -f "$candidate" ]; then
-      echo "[r3.5] sourcing ESP-IDF environment: $candidate"
-      # shellcheck disable=SC1090
-      . "$candidate"
-      break
-    fi
-  done
-fi
-
-if ! command -v idf.py >/dev/null 2>&1; then
-  echo "[r3.5] idf.py is not available; cannot build firmware"
-  exit 78
-fi
-
-echo "[r3.5] ESP-IDF version"
-idf.py --version || true
-
-echo "[r3.5] firmware build started"
-cd "$ROOT/firmware"
-idf.py set-target esp32s3
-idf.py build
-
-echo "[r3.5] firmware build completed"
+echo "[if3] cell build passed; inspect $OUT_DIR/cell-report.json"

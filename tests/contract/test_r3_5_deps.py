@@ -18,8 +18,13 @@ class R35DependencyGateTests(unittest.TestCase):
             "tools/bootstrap_deps.sh",
             "tools/bootstrap_rust.sh",
             "tools/bootstrap_idf.sh",
+            "tools/build_idf_cell.py",
+            "tools/qualify_idf_reference.py",
             "tools/build_guest_wasm.sh",
             "tools/build_firmware.sh",
+            "tools/check_idf_matrix.py",
+            "tools/idf_lock.py",
+            "tools/verify_idf_environment.py",
             "tools/check_r3_5.py",
             "tools/test_full.sh",
             "tools/test_full.py",
@@ -40,6 +45,7 @@ class R35DependencyGateTests(unittest.TestCase):
             "deps-idf:",
             "build-guest:",
             "build-firmware:",
+            "idf-reference-qualify:",
             "check-full:",
         ]:
             self.assertIn(target, makefile)
@@ -56,6 +62,37 @@ class R35DependencyGateTests(unittest.TestCase):
         self.assertIn("rust", report)
         self.assertEqual(report["rust"]["target"], "wasm32-unknown-unknown")
         self.assertIn("esp_idf", report)
+        self.assertEqual(report["idf_matrix"]["status"], "PASS")
+        self.assertEqual(report["idf_matrix"]["lane_id"], "idf-5.4.4")
+        self.assertEqual(report["idf_matrix"]["realization"]["id"], "esp32s3-reference")
+        self.assertIn(report["esp_idf"]["lane_verification"]["status"], {"PASS", "SKIPPED_ENV"})
+
+    def test_dependency_check_reports_selected_realization(self) -> None:
+        proc = subprocess.run(
+            [sys.executable, "-B", str(TOOLS / "check_deps.py"), "--realization", "esp32c3-compile"],
+            cwd=ROOT,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            check=False,
+        )
+        self.assertEqual(proc.returncode, 0, proc.stderr)
+        report = json.loads(proc.stdout)
+        self.assertEqual(report["idf_matrix"]["realization"]["target"], "esp32c3")
+
+    def test_dependency_check_does_not_turn_matrix_failure_into_skip(self) -> None:
+        proc = subprocess.run(
+            [sys.executable, "-B", str(TOOLS / "check_deps.py"), "--realization", "not-a-cell"],
+            cwd=ROOT,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            check=False,
+        )
+        self.assertNotEqual(proc.returncode, 0)
+        report = json.loads(proc.stdout)
+        self.assertEqual(report["idf_matrix"]["status"], "FAIL")
+        self.assertNotEqual(report["checks"][-2]["status"], "SKIPPED_ENV")
 
     def test_wasm_inspector_accepts_r2_fixture(self) -> None:
         fixture = ROOT / "firmware/components/wdc_runtime/test_vectors/wdc_static_hello_wasm.wasm"

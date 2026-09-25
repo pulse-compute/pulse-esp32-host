@@ -36,7 +36,13 @@ extern "C" {
     #[link_name = "wdc_yield"]
     fn wdc_import_yield() -> i32;
     #[link_name = "wdc_host_call"]
-    fn wdc_import_host_call(opcode: u32, req_ptr: u32, req_len: u32, rsp_ptr: u32, rsp_cap: u32) -> i32;
+    fn wdc_import_host_call(
+        opcode: u32,
+        req_ptr: u32,
+        req_len: u32,
+        rsp_ptr: u32,
+        rsp_cap: u32,
+    ) -> i32;
 }
 
 pub fn log(level: LogLevel, msg: &str) -> i32 {
@@ -178,7 +184,12 @@ pub fn gpio_get(resource_id: u32) -> Result<bool, i32> {
     Ok(encoding::find_u32(&response, WDC_CBOR_KEY_VALUE)? != 0)
 }
 
-pub fn config_set(key: &str, value: &[u8], request: &mut [u8], response: &mut [u8]) -> Result<(), i32> {
+pub fn config_set(
+    key: &str,
+    value: &[u8],
+    request: &mut [u8],
+    response: &mut [u8],
+) -> Result<(), i32> {
     let mut enc = Encoder::new(request);
     enc.begin_map(2)?;
     enc.key_text(WDC_CBOR_KEY_KEY, key)?;
@@ -187,7 +198,11 @@ pub fn config_set(key: &str, value: &[u8], request: &mut [u8], response: &mut [u
     status_from_response(call_status, response)
 }
 
-pub fn config_get<'a>(key: &str, request: &mut [u8], response: &'a mut [u8]) -> Result<&'a [u8], i32> {
+pub fn config_get<'a>(
+    key: &str,
+    request: &mut [u8],
+    response: &'a mut [u8],
+) -> Result<&'a [u8], i32> {
     let mut enc = Encoder::new(request);
     enc.begin_map(1)?;
     enc.key_text(WDC_CBOR_KEY_KEY, key)?;
@@ -196,6 +211,21 @@ pub fn config_get<'a>(key: &str, request: &mut [u8], response: &'a mut [u8]) -> 
     encoding::find_bytes(response, WDC_CBOR_KEY_DATA)
 }
 
+pub fn effect_invoke(
+    operation_id: u32,
+    payload: &[u8],
+    request: &mut [u8],
+    response: &mut [u8],
+) -> Result<(), i32> {
+    let mut enc = Encoder::new(request);
+    enc.begin_map(if payload.is_empty() { 1 } else { 2 })?;
+    enc.key_u32(WDC_CBOR_KEY_OPERATION_ID, operation_id)?;
+    if !payload.is_empty() {
+        enc.key_bytes(WDC_CBOR_KEY_DATA, payload)?;
+    }
+    let call_status = host_call(WDC_OP_EFFECT_INVOKE, enc.as_slice(), response);
+    status_from_response(call_status, response)
+}
 
 pub fn net_status(response: &mut [u8]) -> Result<NetStatus, i32> {
     let request = [0xa0u8];
@@ -212,7 +242,14 @@ pub fn net_status(response: &mut [u8]) -> Result<NetStatus, i32> {
     })
 }
 
-pub fn mqtt_publish(resource_id: u32, topic: &str, payload: &[u8], qos: u32, request: &mut [u8], response: &mut [u8]) -> Result<u32, i32> {
+pub fn mqtt_publish(
+    resource_id: u32,
+    topic: &str,
+    payload: &[u8],
+    qos: u32,
+    request: &mut [u8],
+    response: &mut [u8],
+) -> Result<u32, i32> {
     let mut enc = Encoder::new(request);
     enc.begin_map(4)?;
     enc.key_u32(WDC_CBOR_KEY_RESOURCE_ID, resource_id)?;
@@ -224,7 +261,12 @@ pub fn mqtt_publish(resource_id: u32, topic: &str, payload: &[u8], qos: u32, req
     encoding::find_u32(response, WDC_CBOR_KEY_REQUEST_ID)
 }
 
-pub fn mqtt_subscribe(resource_id: u32, topic: &str, request: &mut [u8], response: &mut [u8]) -> Result<u32, i32> {
+pub fn mqtt_subscribe(
+    resource_id: u32,
+    topic: &str,
+    request: &mut [u8],
+    response: &mut [u8],
+) -> Result<u32, i32> {
     let mut enc = Encoder::new(request);
     enc.begin_map(2)?;
     enc.key_u32(WDC_CBOR_KEY_RESOURCE_ID, resource_id)?;
@@ -234,7 +276,14 @@ pub fn mqtt_subscribe(resource_id: u32, topic: &str, request: &mut [u8], respons
     encoding::find_u32(response, WDC_CBOR_KEY_REQUEST_ID)
 }
 
-pub fn http_request(resource_id: u32, method: &str, url: &str, body: &[u8], request: &mut [u8], response: &mut [u8]) -> Result<(u32, u32), i32> {
+pub fn http_request(
+    resource_id: u32,
+    method: &str,
+    url: &str,
+    body: &[u8],
+    request: &mut [u8],
+    response: &mut [u8],
+) -> Result<(u32, u32), i32> {
     let mut enc = Encoder::new(request);
     enc.begin_map(4)?;
     enc.key_u32(WDC_CBOR_KEY_RESOURCE_ID, resource_id)?;
@@ -247,4 +296,22 @@ pub fn http_request(resource_id: u32, method: &str, url: &str, body: &[u8], requ
         encoding::find_u32(response, WDC_CBOR_KEY_REQUEST_ID)?,
         encoding::find_u32(response, WDC_CBOR_KEY_HTTP_STATUS)?,
     ))
+}
+
+pub fn http_respond(
+    resource_id: u32,
+    request_id: u32,
+    http_status: u32,
+    body: &[u8],
+    request: &mut [u8],
+    response: &mut [u8],
+) -> Result<(), i32> {
+    let mut enc = Encoder::new(request);
+    enc.begin_map(4)?;
+    enc.key_u32(WDC_CBOR_KEY_RESOURCE_ID, resource_id)?;
+    enc.key_u32(WDC_CBOR_KEY_REQUEST_ID, request_id)?;
+    enc.key_u32(WDC_CBOR_KEY_HTTP_STATUS, http_status)?;
+    enc.key_bytes(WDC_CBOR_KEY_DATA, body)?;
+    let call_status = host_call(WDC_OP_HTTP_RESPOND, enc.as_slice(), response);
+    status_from_response(call_status, response)
 }

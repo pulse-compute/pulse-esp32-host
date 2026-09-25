@@ -1,0 +1,34 @@
+{
+  "schema": "pulse.esp32.target-intent.v1",
+  "intent_id": "portable-loopback-v1",
+  "application_id": "pulse.example.portable-loopback",
+  "allowed_boards": [
+    "aitrip-esp32s3-devkitc-1-n8r2",
+    "seeed-xiao-esp32c6-4m"
+  ],
+  "allowed_targets": [
+    "esp32c6",
+    "esp32s3"
+  ],
+  "host_abi": {
+    "major": 1,
+    "min_minor": 0,
+    "max_minor": 0
+  },
+  "required_capabilities": [
+    "pulse.application-slots.v1",
+    "pulse.event-effect.v1",
+    "pulse.wasm-application.v1"
+  ],
+  "placement": "portable",
+  "resources": {
+    "guest_linear_memory_bytes": 49152,
+    "runtime_stack_bytes": 16384,
+    "network_working_bytes": 8192,
+    "capability_working_bytes": 4096,
+    "native_refinement_bytes": 0,
+    "transition_scratch_bytes": 8192,
+    "largest_application_allocation_bytes": 49152,
+    "target_optimization_bytes": 0
+  }
+}

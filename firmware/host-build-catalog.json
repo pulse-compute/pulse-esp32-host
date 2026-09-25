@@ -1,0 +1,57 @@
+{
+  "schema": "pulse.esp32.host-build-catalog.v1",
+  "lane": {
+    "id": "idf-5.4.4",
+    "version": "v5.4.4",
+    "source_commit": "296b6eab9445fd720e71aecab961e2d3fbca9944",
+    "platform": "linux/amd64",
+    "container_image": "espressif/idf@sha256:8d1846f61ff8db00ba6530501f90bf43604d923072a616c806fef8e85a88ed82"
+  },
+  "components": [
+    {
+      "name": "espressif/cmake_utilities",
+      "version": "0.5.3",
+      "component_hash": "351350613ceafba240b761b4ea991e0f231ac7a9f59a9ee901f751bddc0bb18f"
+    },
+    {
+      "name": "espressif/elf_loader",
+      "version": "1.3.2",
+      "component_hash": "9f7f6efa06e0847adeba6c9910c4308f33aae7d35ba0cc36c0850105c45e9874"
+    },
+    {
+      "name": "espressif/wasm-micro-runtime",
+      "version": "2.4.0~1",
+      "component_hash": "04f25aad2896b5e906397a061d35cce560609bebd3913a4be7e365ecbf2dd9d6"
+    }
+  ],
+  "source_roots": [
+    "firmware/components",
+    "firmware/main",
+    "native-sdk"
+  ],
+  "derived_source_exclusions": [
+    "firmware/components/wdc_host_identity/wdc_host_fingerprint_generated.c"
+  ],
+  "realizations": {
+    "aitrip-esp32s3-devkitc-1-n8r2": {
+      "board": "firmware/boards/aitrip-esp32s3-devkitc-1-n8r2/board.json",
+      "host_profile": "firmware/host-profiles/esp32s3-psram-slots-v1.json",
+      "target": "esp32s3",
+      "sdkconfig_defaults": "firmware/boards/aitrip-esp32s3-devkitc-1-n8r2/sdkconfig.defaults",
+      "partitions": "firmware/boards/aitrip-esp32s3-devkitc-1-n8r2/partitions.csv",
+      "dependency_lock": "firmware/locks/host-extension/idf-5.4.4/esp32s3/dependencies.lock",
+      "build_lock": "firmware/host-build/locks/aitrip-esp32s3-devkitc-1-n8r2.json",
+      "fingerprint": "firmware/host-build/fingerprints/aitrip-esp32s3-devkitc-1-n8r2.json"
+    },
+    "seeed-xiao-esp32c6-4m": {
+      "board": "firmware/boards/seeed-xiao-esp32c6-4m/board.json",
+      "host_profile": "firmware/host-profiles/esp32c6-portable-slots-v1.json",
+      "target": "esp32c6",
+      "sdkconfig_defaults": "firmware/boards/seeed-xiao-esp32c6-4m/sdkconfig.defaults",
+      "partitions": "firmware/boards/seeed-xiao-esp32c6-4m/partitions.csv",
+      "dependency_lock": "firmware/locks/host-extension/idf-5.4.4/esp32c6/dependencies.lock",
+      "build_lock": "firmware/host-build/locks/seeed-xiao-esp32c6-4m.json",
+      "fingerprint": "firmware/host-build/fingerprints/seeed-xiao-esp32c6-4m.json"
+    }
+  }
+}

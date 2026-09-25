@@ -8,6 +8,7 @@
 
 #include "wdc_diag.h"
 #include "wdc_events.h"
+#include "wdc_runtime_buffer.h"
 
 #ifdef ESP_PLATFORM
 #include "esp_random.h"
@@ -317,12 +318,24 @@ int32_t wdc_runtime_load_static(WdcRuntime *runtime, const uint8_t *wasm_bytes, 
 
 #ifdef ESP_PLATFORM
     char error_buf[WDC_RUNTIME_ERROR_MAX];
+    uint8_t *writable_wasm;
     memset(error_buf, 0, sizeof(error_buf));
-    wasm_module_t module = wasm_runtime_load((uint8_t *)wasm_bytes, wasm_len, error_buf, sizeof(error_buf));
+    writable_wasm = wdc_runtime_buffer_copy(wasm_bytes, wasm_len);
+    if (writable_wasm == NULL) {
+        wdc_runtime_set_error(runtime,
+                              WDC_RUNTIME_OUTCOME_BUNDLE_LOAD_FAILED,
+                              WDC_ERR_NO_MEMORY,
+                              "WAMR writable module buffer allocation failed");
+        return WDC_ERR_NO_MEMORY;
+    }
+    wasm_module_t module = wasm_runtime_load(writable_wasm, wasm_len, error_buf,
+                                             sizeof(error_buf));
     if (module == NULL) {
+        wdc_runtime_buffer_release(writable_wasm);
         wdc_runtime_set_error(runtime, WDC_RUNTIME_OUTCOME_BUNDLE_LOAD_FAILED, WDC_ERR_BAD_ENCODING, error_buf);
         return WDC_ERR_BAD_ENCODING;
     }
+    runtime->backend_wasm_buffer = writable_wasm;
     runtime->backend_module = (void *)module;
 
     wasm_module_inst_t module_inst = wasm_runtime_instantiate(module,
@@ -366,10 +379,10 @@ int32_t wdc_runtime_lookup_exports(WdcRuntime *runtime)
 
 #ifdef ESP_PLATFORM
     wasm_module_inst_t module_inst = (wasm_module_inst_t)runtime->backend_module_inst;
-    runtime->backend_func_init = wasm_runtime_lookup_function(module_inst, WDC_EXPORT_INIT, NULL);
-    runtime->backend_func_on_event = wasm_runtime_lookup_function(module_inst, WDC_EXPORT_ON_EVENT, NULL);
-    runtime->backend_func_health = wasm_runtime_lookup_function(module_inst, WDC_EXPORT_HEALTH, NULL);
-    runtime->backend_func_shutdown = wasm_runtime_lookup_function(module_inst, WDC_EXPORT_SHUTDOWN, NULL);
+    runtime->backend_func_init = wasm_runtime_lookup_function(module_inst, WDC_EXPORT_INIT);
+    runtime->backend_func_on_event = wasm_runtime_lookup_function(module_inst, WDC_EXPORT_ON_EVENT);
+    runtime->backend_func_health = wasm_runtime_lookup_function(module_inst, WDC_EXPORT_HEALTH);
+    runtime->backend_func_shutdown = wasm_runtime_lookup_function(module_inst, WDC_EXPORT_SHUTDOWN);
 #else
     runtime->backend_func_init = wdc_bytes_contains(runtime->wasm_bytes, runtime->wasm_len, WDC_EXPORT_INIT) ? (void *)1 : NULL;
     runtime->backend_func_on_event = wdc_bytes_contains(runtime->wasm_bytes, runtime->wasm_len, WDC_EXPORT_ON_EVENT) ? (void *)1 : NULL;
@@ -548,7 +561,14 @@ int32_t wdc_runtime_call_event_cbor(WdcRuntime *runtime, const uint8_t *event_by
     }
     return status;
 #else
-    (void)event_bytes;
+    if (runtime->host_stub_event_fn != NULL) {
+        int32_t status = runtime->host_stub_event_fn(
+            runtime->host_stub_event_ctx, event_bytes, event_len);
+        runtime->report.on_event_called = true;
+        runtime->report.on_event_result = (uint32_t)status;
+        return wdc_runtime_handle_guest_result(
+            runtime, (uint32_t)status, "wdc_module_on_event");
+    }
     return wdc_runtime_call_on_event(runtime, 0u, event_len);
 #endif
 }
@@ -567,6 +587,18 @@ int32_t wdc_runtime_dispatch_event(WdcRuntime *runtime, const WdcEvent *event)
     }
     return wdc_runtime_call_event_cbor(runtime, encoded, encoded_len);
 }
+
+#ifndef ESP_PLATFORM
+void wdc_runtime_set_host_stub_event_hook(WdcRuntime *runtime,
+                                          WdcRuntimeHostStubEventFn fn,
+                                          void *ctx)
+{
+    if (runtime != NULL) {
+        runtime->host_stub_event_fn = fn;
+        runtime->host_stub_event_ctx = ctx;
+    }
+}
+#endif
 
 int32_t wdc_runtime_call_health(WdcRuntime *runtime)
 {
@@ -636,6 +668,10 @@ void wdc_runtime_teardown(WdcRuntime *runtime)
         wasm_runtime_unload((wasm_module_t)runtime->backend_module);
         runtime->backend_module = NULL;
     }
+    if (runtime->backend_wasm_buffer != NULL) {
+        wdc_runtime_buffer_release((uint8_t *)runtime->backend_wasm_buffer);
+        runtime->backend_wasm_buffer = NULL;
+    }
     if (s_wamr_runtime_initialized) {
         wasm_runtime_destroy();
         s_wamr_runtime_initialized = false;
@@ -644,6 +680,7 @@ void wdc_runtime_teardown(WdcRuntime *runtime)
     runtime->backend_exec_env = NULL;
     runtime->backend_module_inst = NULL;
     runtime->backend_module = NULL;
+    runtime->backend_wasm_buffer = NULL;
 #endif
     (void)wdc_diag_log(WDC_LOG_INFO, "runtime torn down");
 }

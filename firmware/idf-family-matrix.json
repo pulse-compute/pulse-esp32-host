@@ -1,0 +1,112 @@
+{
+  "schema": "pulse.esp32.idf-family-matrix.v1",
+  "lanes": {
+    "idf-5.4.4": {
+      "version": "v5.4.4",
+      "source_commit": "296b6eab9445fd720e71aecab961e2d3fbca9944",
+      "platform": "linux/amd64",
+      "container_image": "espressif/idf@sha256:8d1846f61ff8db00ba6530501f90bf43604d923072a616c806fef8e85a88ed82",
+      "wamr_version": "2.4.0~1"
+    }
+  },
+  "realizations": {
+    "esp32s3-reference": {
+      "lane": "idf-5.4.4",
+      "target": "esp32s3",
+      "intent": "required",
+      "reason": "Current architectural reference with the existing 16 MB flash and PSRAM configuration.",
+      "defaults": [
+        "sdkconfig.defaults",
+        "realizations/esp32s3-reference.defaults"
+      ],
+      "partitions": "partitions.csv",
+      "dependency_lock": "locks/idf-5.4.4/esp32s3/dependencies.lock",
+      "reproducibility_runs": 2
+    },
+    "esp32-compile": {
+      "lane": "idf-5.4.4",
+      "target": "esp32",
+      "intent": "exploratory",
+      "reason": "Supported IDF and WAMR intersection that exercises the classic Xtensa family.",
+      "defaults": [
+        "sdkconfig.defaults",
+        "realizations/esp32-compile.defaults"
+      ],
+      "partitions": "partitions/compile-16m-no-psram.csv",
+      "dependency_lock": "locks/idf-5.4.4/esp32/dependencies.lock",
+      "reproducibility_runs": 1
+    },
+    "esp32c3-compile": {
+      "lane": "idf-5.4.4",
+      "target": "esp32c3",
+      "intent": "exploratory",
+      "reason": "Supported IDF and WAMR intersection that provides a constrained RISC-V compile proof.",
+      "defaults": [
+        "sdkconfig.defaults",
+        "realizations/esp32c3-compile.defaults"
+      ],
+      "partitions": "partitions/compile-16m-no-psram.csv",
+      "dependency_lock": "locks/idf-5.4.4/esp32c3/dependencies.lock",
+      "reproducibility_runs": 1
+    },
+    "esp32c6-compile": {
+      "lane": "idf-5.4.4",
+      "target": "esp32c6",
+      "intent": "exploratory",
+      "reason": "Supported IDF and WAMR intersection that provides a newer RISC-V compile proof.",
+      "defaults": [
+        "sdkconfig.defaults",
+        "realizations/esp32c6-compile.defaults"
+      ],
+      "partitions": "partitions/compile-16m-no-psram.csv",
+      "dependency_lock": "locks/idf-5.4.4/esp32c6/dependencies.lock",
+      "reproducibility_runs": 1
+    }
+  },
+  "deferred": [
+    {
+      "id": "esp32p4-deferred",
+      "lane": "idf-5.4.4",
+      "target": "esp32p4",
+      "intent": "deferred",
+      "reason": "Supported intersection, but the materially different high-end target has no qualifying value in this pass."
+    },
+    {
+      "id": "esp32c5-deferred",
+      "lane": "idf-5.4.4",
+      "target": "esp32c5",
+      "intent": "deferred",
+      "reason": "The target is advertised by WAMR but remains preview-only in the pinned IDF lane."
+    }
+  ],
+  "excluded": [
+    {
+      "id": "esp32s2-excluded",
+      "lane": "idf-5.4.4",
+      "target": "esp32s2",
+      "intent": "excluded",
+      "reason": "The pinned WAMR component does not advertise this IDF target."
+    },
+    {
+      "id": "esp32c2-excluded",
+      "lane": "idf-5.4.4",
+      "target": "esp32c2",
+      "intent": "excluded",
+      "reason": "The pinned WAMR component does not advertise this IDF target."
+    },
+    {
+      "id": "esp32h2-excluded",
+      "lane": "idf-5.4.4",
+      "target": "esp32h2",
+      "intent": "excluded",
+      "reason": "The pinned WAMR component does not advertise this IDF target."
+    },
+    {
+      "id": "esp32c61-excluded",
+      "lane": "idf-5.4.4",
+      "target": "esp32c61",
+      "intent": "excluded",
+      "reason": "The target is preview-only in the pinned IDF lane and absent from the pinned WAMR metadata."
+    }
+  ]
+}

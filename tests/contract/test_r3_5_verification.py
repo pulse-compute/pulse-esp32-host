@@ -24,6 +24,7 @@ class R35VerificationTests(unittest.TestCase):
             "bootstrap_idf.sh",
             "build_guest_wasm.sh",
             "build_firmware.sh",
+            "qualify_idf_reference.py",
             "test_full.py",
             "test_full.sh",
             "check_r3_5.py",
@@ -46,6 +47,7 @@ class R35VerificationTests(unittest.TestCase):
             "deps-bootstrap:",
             "build-guest:",
             "build-firmware:",
+            "idf-reference-qualify:",
             "check-full:",
             "check-full-network:",
         ]:

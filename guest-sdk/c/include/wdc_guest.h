@@ -44,6 +44,8 @@ extern "C" {
 #define WDC_OP_MQTT_PUBLISH 0x0502u
 #define WDC_OP_MQTT_SUBSCRIBE 0x0503u
 #define WDC_OP_HTTP_REQUEST 0x0504u
+#define WDC_OP_HTTP_RESPOND 0x0505u
+#define WDC_OP_EFFECT_INVOKE 0x0801u
 
 #define WDC_CBOR_KEY_STATUS        0u
 #define WDC_CBOR_KEY_ABI_MAJOR     1u
@@ -83,6 +85,12 @@ extern "C" {
 #define WDC_CBOR_KEY_SECURITY_COUNTER 34u
 #define WDC_CBOR_KEY_PENDING_COUNT 35u
 #define WDC_CBOR_KEY_PAYLOAD_LEN 36u
+#define WDC_CBOR_KEY_CAUSATION_ID 37u
+#define WDC_CBOR_KEY_OPERATION_ID 38u
+#define WDC_CBOR_KEY_CORRELATION_ID 39u
+#define WDC_CBOR_KEY_DEADLINE_MS 40u
+#define WDC_CBOR_KEY_ENCODING 41u
+#define WDC_CBOR_KEY_COMPLETION_LATENCY_MS 42u
 
 #define WDC_R3_RESOURCE_RELAY_1    1u
 #define WDC_R3_RESOURCE_STATUS_LED 2u
@@ -112,12 +120,14 @@ extern "C" {
 #define WDC_EVENT_NET_DISCONNECTED 0x0802u
 #define WDC_EVENT_MQTT_MESSAGE 0x0803u
 #define WDC_EVENT_HTTP_RESPONSE 0x0804u
+#define WDC_EVENT_HTTP_REQUEST 0x0805u
 
 typedef struct WdcGuestEventEnvelope {
     uint32_t abi_version;
     uint32_t event_type;
     uint32_t event_id;
     uint64_t timestamp_ms;
+    uint64_t causation_id;
     uint32_t resource_id;
 } WdcGuestEventEnvelope;
 
@@ -403,6 +413,16 @@ static inline int32_t wdc_guest_config_set(const char *key, const uint8_t *value
     return st == WDC_OK ? wdc_guest_call_status(WDC_OP_CONFIG_SET, req, b.len, rsp, rsp_cap) : st;
 }
 
+static inline int32_t wdc_guest_effect_invoke(uint32_t operation_id, const uint8_t *payload, uint32_t payload_len, uint8_t *req, uint32_t req_cap, uint8_t *rsp, uint32_t rsp_cap)
+{
+    WdcGuestCborBuilder b;
+    wdc_guest_cbor_init(&b, req, req_cap);
+    int32_t st = wdc_guest_cbor_begin_map(&b, payload_len == 0u ? 1u : 2u);
+    if (st == WDC_OK) { st = wdc_guest_cbor_put_key_u32(&b, WDC_CBOR_KEY_OPERATION_ID, operation_id); }
+    if (st == WDC_OK && payload_len != 0u) { st = wdc_guest_cbor_put_key_bytes(&b, WDC_CBOR_KEY_DATA, payload, payload_len); }
+    return st == WDC_OK ? wdc_guest_call_status(WDC_OP_EFFECT_INVOKE, req, b.len, rsp, rsp_cap) : st;
+}
+
 static inline int32_t wdc_guest_net_status(bool *out_connected, uint32_t *out_state, uint8_t *rsp, uint32_t rsp_cap)
 {
     uint8_t req[1] = {0xa0u};
@@ -447,6 +467,21 @@ static inline int32_t wdc_guest_http_request(uint32_t resource_id, const char *m
     if (st == WDC_OK) { st = wdc_guest_cbor_put_key_text(&b, WDC_CBOR_KEY_URL, url); }
     if (st == WDC_OK) { st = wdc_guest_cbor_put_key_bytes(&b, WDC_CBOR_KEY_DATA, body, body_len); }
     return st == WDC_OK ? wdc_guest_call_status(WDC_OP_HTTP_REQUEST, req, b.len, rsp, rsp_cap) : st;
+}
+
+/* Valid only while handling WDC_EVENT_HTTP_REQUEST.  The first response for
+ * the event's request_id wins; duplicate, late, or mismatched responses fail
+ * closed in the host. */
+static inline int32_t wdc_guest_http_respond(uint32_t resource_id, uint32_t request_id, uint32_t http_status, const uint8_t *body, uint32_t body_len, uint8_t *req, uint32_t req_cap, uint8_t *rsp, uint32_t rsp_cap)
+{
+    WdcGuestCborBuilder b;
+    wdc_guest_cbor_init(&b, req, req_cap);
+    int32_t st = wdc_guest_cbor_begin_map(&b, 4u);
+    if (st == WDC_OK) { st = wdc_guest_cbor_put_key_u32(&b, WDC_CBOR_KEY_RESOURCE_ID, resource_id); }
+    if (st == WDC_OK) { st = wdc_guest_cbor_put_key_u32(&b, WDC_CBOR_KEY_REQUEST_ID, request_id); }
+    if (st == WDC_OK) { st = wdc_guest_cbor_put_key_u32(&b, WDC_CBOR_KEY_HTTP_STATUS, http_status); }
+    if (st == WDC_OK) { st = wdc_guest_cbor_put_key_bytes(&b, WDC_CBOR_KEY_DATA, body, body_len); }
+    return st == WDC_OK ? wdc_guest_call_status(WDC_OP_HTTP_RESPOND, req, b.len, rsp, rsp_cap) : st;
 }
 
 #ifdef __cplusplus

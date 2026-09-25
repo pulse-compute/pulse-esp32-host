@@ -2,6 +2,19 @@
 
 This runbook is for the first pass with a real ESP32-S3 board.
 
+## Current HX4.5 hard stop
+
+For the selected AITRIP ESP32-S3-DevKitC-1 N8R2, use the dedicated
+[HX4.5 AITRIP hardware run](../HX4_5_S3_AITRIP_HARDWARE.md). It is isolated
+from GPIO and the production partition layout, embeds the exact sealed S3 ELF,
+and emits evaluator-owned evidence across a deliberate software reset. Complete
+that run before the broader bring-up plan below or HX5.
+
+For the 4 MB/no-PSRAM Seeed Studio XIAO ESP32C6, use the separate
+[HX4.5 XIAO C6 hardware run](../HX4_5_C6_XIAO_HARDWARE.md). It reuses the same
+logical campaign with the sealed RISC-V ELF, removes every S3/PSRAM allocator
+assumption, and makes internal-memory fit part of the gate.
+
 ## Prerequisites
 
 - ESP32-S3 board, preferably with PSRAM.
@@ -126,6 +139,26 @@ observed safe states
 rollback outcome
 logs
 ```
+
+## General native-extension follow-up
+
+After each named-board stop, retain a separate report for every target
+with:
+
+```text
+board manufacturer and exact model
+chip revision, flash, and PSRAM facts
+power source, serial port, and baud
+host firmware, extension ELF, sdkconfig, and component-lock hashes
+load/init/start/health/quiesce/deinit/unload transcript
+task stack and queue high-water marks
+heap/PSRAM before and after every lifecycle stage
+reset reason and retained diagnostic for the fault case
+```
+
+Run the happy path, repeated clean cycles, a quiescence timeout, and simulated
+unconfirmed-fault reset. Do not promote a `BUILD_PROVEN` report to runtime
+evidence by attaching an undocumented console excerpt.
 
 
 

@@ -1,0 +1,6 @@
+# AITRIP ESP32-S3-DevKitC-1 N8R2 hardware-qualification layout.
+# This intentionally contains no production OTA or Pulse application slots.
+# Name,     Type, SubType, Offset,  Size, Flags
+nvs,        data, nvs,     0x9000,  24K,
+phy_init,   data, phy,     0xf000,  4K,
+factory,    app,  factory, 0x10000, 2M,

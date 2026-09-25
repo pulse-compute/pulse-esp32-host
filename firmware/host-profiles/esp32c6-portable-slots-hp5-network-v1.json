@@ -1,0 +1,34 @@
+{
+  "schema": "pulse.esp32.host-profile.v1",
+  "profile_id": "esp32c6-portable-slots-hp5-network-v1",
+  "target": "esp32c6",
+  "host_abi": {
+    "major": 1,
+    "minor": 0
+  },
+  "capabilities": [
+    "pulse.application-slots.v1",
+    "pulse.event-effect.v1",
+    "pulse.native-refinement.v1",
+    "pulse.wasm-application.v1"
+  ],
+  "control_resource_profile": "esp32c6-no-psram-minimum-v1",
+  "resource_authority": {
+    "path": "specs/PULSE-ESP32-006-host-kernel-resource-authority.json",
+    "sha256": "cc3afbfc4ff7d4a7b5b5aca6ae0b5953a34065501bbfea36d4580a2d193fd84d"
+  },
+  "abi_authority": {
+    "path": "firmware/components/wdc_abi/include/wdc_abi.h",
+    "sha256": "104753f70693b895afcf33e5a897f09ffec8f63988414c1784f56b8a7fa26f1b"
+  },
+  "native_extension_abi_sha256": "e92aaae33b4016f5e3d1ac41f34fac0b19569c7f0bbabba6ce3d4e2604f6e023",
+  "resources": {
+    "fixed_control_reserve_bytes": 98304,
+    "exclusive_update_working_bytes": 65536,
+    "largest_block_floor_bytes": 32768,
+    "maximum_application_internal_bytes": 131072,
+    "maximum_transition_scratch_bytes": 16384,
+    "maximum_target_optimized_bytes": 0,
+    "target_optimized_floor_bytes": 0
+  }
+}
