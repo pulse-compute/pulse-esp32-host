@@ -13,11 +13,13 @@ The host should be able to answer:
 - whether events were dropped;
 - which runtime limit was exceeded;
 - why a candidate rolled back;
+- which native-extension lifecycle state, extension status, and HX fault code
+  preceded a reset-required latch;
 - whether production security preflight passed.
 
 ## Current surfaces
 
-The scaffold includes reset reporting, a diagnostic ring, host-call audit records, safety counters, event-drop accounting, bundle-verification results, activation decisions, and machine-readable local reports.
+The scaffold includes reset reporting, a diagnostic ring, host-call audit records, safety counters, event-drop accounting, bundle-verification results, activation decisions, native-extension lifecycle/fault fields, and machine-readable local reports. HX3's host smoke exercises the reset-required policy, but retained target breadcrumbs remain unexecuted without hardware.
 
 Generated reports live under `reports/` and are not committed.
 
@@ -31,6 +33,7 @@ fault code and reason
 last opcode and logical resource
 safety state
 reset reason
+native extension id, lifecycle state, status, and fault code
 monotonic time when available
 ```
 

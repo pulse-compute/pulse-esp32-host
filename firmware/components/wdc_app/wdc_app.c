@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "wdc_app_slots.h"
 #include "wdc_caps.h"
 #include "wdc_diag.h"
 #include "wdc_ota.h"
@@ -259,28 +260,17 @@ int32_t wdc_app_boot_active_slot(const WdcDeviceProfile *profile,
     status = wdc_runtime_init(runtime, &effective_runtime_config);
     if (status == WDC_OK) { status = wdc_runtime_load_static(runtime, payload, payload_len); }
     if (status == WDC_OK) { status = wdc_runtime_lookup_exports(runtime); }
-    if (status == WDC_OK) { status = wdc_runtime_call_init(runtime); }
+    if (status == WDC_OK) {
+        if (out_report != NULL) {
+            out_report->application_code_launched = true;
+        }
+        status = wdc_runtime_call_init(runtime);
+    }
     if (status == WDC_OK) { status = wdc_runtime_call_health(runtime); }
     wdc_runtime_copy_report(runtime, out_report != NULL ? &out_report->runtime_report : NULL);
     if (status != WDC_OK) {
         report_reason(out_report, "active runtime lifecycle failed");
         return fail_runtime(metadata, decision.slot_to_run, decision.probation, status, "active runtime lifecycle failed", runtime, out_report);
-    }
-
-    if (decision.probation) {
-        status = wdc_activation_confirm(metadata, decision.slot_to_run, local_activation.required_health_checks != 0u ? local_activation.required_health_checks : 1u);
-        if (status == WDC_OK) {
-            status = wdc_ota_write_metadata(metadata);
-            if (out_report != NULL) {
-                out_report->metadata_written = true;
-                out_report->confirmed_candidate = true;
-            }
-        }
-        if (status != WDC_OK) {
-            report_reason(out_report, "candidate confirmation failed");
-            if (out_report != NULL) { out_report->status = status; }
-            return status;
-        }
     }
 
     if (out_report != NULL) {
@@ -292,6 +282,159 @@ int32_t wdc_app_boot_active_slot(const WdcDeviceProfile *profile,
         out_report->bundle_version = s_active_verify.manifest.bundle_version;
         (void)snprintf(out_report->bundle_id, sizeof(out_report->bundle_id), "%s", s_active_verify.manifest.bundle_id);
     }
-    report_reason(out_report, "active bundle loaded from confirmed slot");
+    report_reason(out_report,
+                  decision.probation
+                      ? "trial bundle loaded; host probation remains open"
+                      : "active bundle loaded from confirmed slot");
+    return WDC_OK;
+}
+
+int32_t wdc_app_boot_managed_slot(
+    const WdcDeviceProfile *profile,
+    WdcBundleMetadataV1 *metadata,
+    const WdcActivationPolicy *activation_policy,
+    const WdcActivationBootContext *boot_context,
+    const WdcHostFingerprintV1 *fingerprint,
+    const WdcControlHeapSnapshot *heap,
+    const WdcAppSlotVerifyPolicy *slot_verify_policy,
+    WdcRuntime *runtime,
+    const WdcRuntimeConfig *runtime_config,
+    uint8_t *bundle_buffer,
+    uint32_t bundle_buffer_cap,
+    WdcAppSlotBootResult *out_slot_report,
+    WdcAppBootReport *out_report)
+{
+    const uint8_t *payload = NULL;
+    uint32_t payload_len = 0u;
+    int32_t status;
+    report_init(out_report);
+    if (profile == NULL || metadata == NULL || fingerprint == NULL ||
+        heap == NULL || slot_verify_policy == NULL || runtime == NULL ||
+        bundle_buffer == NULL || out_slot_report == NULL) {
+        report_reason(out_report, "managed slot boot received a bad pointer");
+        return WDC_ERR_BAD_POINTER;
+    }
+    status = wdc_app_slots_boot(metadata,
+                                activation_policy,
+                                boot_context,
+                                fingerprint,
+                                heap,
+                                slot_verify_policy,
+                                bundle_buffer,
+                                bundle_buffer_cap,
+                                out_slot_report);
+    if (out_report != NULL) {
+        out_report->prelaunch_checked =
+            out_slot_report->prelaunch.outcome !=
+            WDC_HOST_PRELAUNCH_NOT_EVALUATED;
+        out_report->selected_slot = out_slot_report->selected_slot;
+        out_report->probation = out_slot_report->probation;
+        out_report->rollback = out_slot_report->reboot_required;
+        out_report->activation_decision = out_slot_report->activation;
+    }
+    if (status != WDC_OK ||
+        (out_slot_report->outcome != WDC_APP_SLOT_BOOT_RUN_CONFIRMED &&
+         out_slot_report->outcome != WDC_APP_SLOT_BOOT_RUN_TRIAL)) {
+        int32_t result = status;
+        if (result == WDC_OK) {
+            result = out_slot_report->reboot_required
+                         ? WDC_ERR_NOT_SYNCHRONIZED
+                         : WDC_ERR_NOT_AVAILABLE;
+        }
+        if (out_report != NULL) {
+            out_report->status = result;
+            out_report->no_bundle = out_slot_report->recovery;
+        }
+        report_reason(out_report,
+                      out_slot_report->reboot_required
+                          ? "managed slot fallback requires reboot"
+                          : "managed slot boot entered recovery");
+        return result;
+    }
+
+    s_active_verify = out_slot_report->bundle_verify;
+    status = wdc_bundle_get_payload(bundle_buffer,
+                                    out_slot_report->bundle_bytes,
+                                    &s_active_verify.header,
+                                    &payload,
+                                    &payload_len);
+    if (status != WDC_OK) {
+        report_reason(out_report, "managed slot payload extraction failed");
+        return fail_runtime(metadata,
+                            out_slot_report->selected_slot,
+                            out_slot_report->probation,
+                            status,
+                            "managed slot payload extraction failed",
+                            runtime,
+                            out_report);
+    }
+
+    install_host_call_limits_from_manifest(&s_active_verify);
+    WdcRuntimeConfig effective_runtime_config =
+        runtime_config_from_manifest(&s_active_verify, runtime_config);
+    status = wdc_safety_install_guarded_authorizer(
+        profile,
+        &s_active_verify.capability_set);
+    if (status == WDC_OK) {
+        status = wdc_safety_mark_app_running(
+            s_active_verify.manifest.bundle_id,
+            s_active_verify.manifest.bundle_version);
+    }
+    if (status != WDC_OK) {
+        report_reason(out_report,
+                      "managed slot safety authorizer install failed");
+        if (out_report != NULL) {
+            out_report->status = status;
+        }
+        return status;
+    }
+
+    status = wdc_runtime_init(runtime, &effective_runtime_config);
+    if (status == WDC_OK) {
+        status = wdc_runtime_load_static(runtime, payload, payload_len);
+    }
+    if (status == WDC_OK) {
+        status = wdc_runtime_lookup_exports(runtime);
+    }
+    if (status == WDC_OK) {
+        if (out_report != NULL) {
+            out_report->application_code_launched = true;
+        }
+        status = wdc_runtime_call_init(runtime);
+    }
+    if (status == WDC_OK) {
+        status = wdc_runtime_call_health(runtime);
+    }
+    wdc_runtime_copy_report(runtime,
+                            out_report != NULL
+                                ? &out_report->runtime_report
+                                : NULL);
+    if (status != WDC_OK) {
+        report_reason(out_report, "managed slot runtime lifecycle failed");
+        return fail_runtime(metadata,
+                            out_slot_report->selected_slot,
+                            out_slot_report->probation,
+                            status,
+                            "managed slot runtime lifecycle failed",
+                            runtime,
+                            out_report);
+    }
+    if (out_report != NULL) {
+        out_report->status = WDC_OK;
+        out_report->used_active_slot = true;
+        out_report->selected_slot = out_slot_report->selected_slot;
+        out_report->bundle_len = out_slot_report->bundle_bytes;
+        out_report->payload_len = payload_len;
+        out_report->bundle_version =
+            s_active_verify.manifest.bundle_version;
+        (void)snprintf(out_report->bundle_id,
+                       sizeof(out_report->bundle_id),
+                       "%s",
+                       s_active_verify.manifest.bundle_id);
+    }
+    report_reason(out_report,
+                  out_slot_report->probation
+                      ? "managed trial launched; host probation remains open"
+                      : "managed confirmed application launched");
     return WDC_OK;
 }

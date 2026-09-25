@@ -4,8 +4,11 @@ Use this before any real deployment.
 
 ## Build/toolchain
 
-- [ ] ESP-IDF installed and version recorded.
-- [ ] Firmware builds for `esp32s3`.
+- [ ] [IDF family matrix seal](../reference/IDF_FAMILY_MATRIX.md) passes with exact lane, image, locks, source, and evidence archive recorded.
+- [ ] S3 reference has two clean byte-reproducible builds in the pinned lane.
+- [ ] Every exploratory target is attempted and explicitly classified; deterministic incompatibility is not treated as deployability.
+- [ ] The workflow artifact contains the aggregate report, all cell reports, all build logs, generated configurations for successful cells, and build artifacts.
+- [ ] The release source has a real Git revision recorded in addition to the firmware source-tree hash.
 - [ ] Rust guest SDK builds with `wasm32-unknown-unknown`.
 - [ ] Generated WASM imports/exports pass inspection.
 - [ ] Bundle packaging is reproducible.
@@ -72,3 +75,5 @@ Use this before any real deployment.
 
 A production release should not proceed with unresolved `FAIL` gates or unclassified unknowns. `SKIPPED_NO_HARDWARE` is not acceptable for a production release. `SKIPPED_ENV` is acceptable only for development sandboxes, not release CI.
 
+The IDF family build seal satisfies none of the unchecked hardware, runtime,
+security, network, OTA, or observability requirements above.

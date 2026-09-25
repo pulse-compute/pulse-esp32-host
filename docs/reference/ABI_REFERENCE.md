@@ -112,6 +112,12 @@ Common keys:
 | `34` | `security_counter` |
 | `35` | `pending_count` |
 | `36` | `payload_len` |
+| `37` | `causation_id` |
+| `38` | `operation_id` |
+| `39` | `correlation_id` |
+| `40` | `deadline_ms` |
+| `41` | `encoding` |
+| `42` | `completion_latency_ms` |
 
 ## Opcodes
 
@@ -135,12 +141,14 @@ Common keys:
 | `0x0502` | `MQTT_PUBLISH` | Network publish capability, topic policy, payload/rate limits. |
 | `0x0503` | `MQTT_SUBSCRIBE` | Network subscribe capability, topic policy. |
 | `0x0504` | `HTTP_REQUEST` | Network request capability, URL/method policy, payload/rate limits. |
+| `0x0505` | `HTTP_RESPOND` | HP5 paired effect; valid only for the exact active HTTP request, bounded body, first response wins. |
 | `0x0601` | `BLE_SET_VALUE` | Deferred. |
 | `0x0602` | `BLE_NOTIFY` | Deferred. |
 | `0x0603` | `BLE_ADVERTISE_SET` | Deferred. |
 | `0x0701` | `KV_GET` | Storage read capability. |
 | `0x0702` | `KV_SET` | Storage write capability. |
 | `0x0703` | `KV_DELETE` | Storage delete capability. |
+| `0x0801` | `EFFECT_INVOKE` | HX4 sealed native-extension registry; requires an installed authorizer and `APP_RUNNING` safety state. |
 
 ## Events
 
@@ -164,6 +172,13 @@ Common event types:
 | `0x0802` | `NET_DISCONNECTED` |
 | `0x0803` | `MQTT_MESSAGE` |
 | `0x0804` | `HTTP_RESPONSE` |
+| `0x0805` | `HTTP_REQUEST` |
+
+HP5 inbound request events carry the registered logical network resource,
+host-assigned request ID, method/path/body data, and absolute deadline. They do
+not carry sockets, credentials, TLS objects, certificate/private-key material,
+or administration authority. `HTTP_RESPOND` is rejected outside the active
+handler and on a wrong ID, duplicate response, cancellation, or timeout.
 
 ## Runtime limits
 
@@ -181,3 +196,7 @@ R8.2 makes these live per-bundle values derived from the verified manifest, then
 
 As of R8.1, the dispatcher must fail closed when an authorizer is absent. Only explicitly safe status calls may bypass the authorizer. This is a core invariant and should not be weakened when new opcodes are added.
 
+HX4 keeps `EFFECT_INVOKE` effectful. The installed capability authorizer may
+delegate it to the extension bridge, where sealed catalog identity, candidate
+state, request bounds, host correlation, and deadline are enforced. It is not
+in the safe-without-authorizer set.

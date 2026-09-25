@@ -48,6 +48,8 @@ static bool opcode_is_effectful_when_stopped(uint32_t opcode)
     case WDC_OP_MQTT_PUBLISH:
     case WDC_OP_MQTT_SUBSCRIBE:
     case WDC_OP_HTTP_REQUEST:
+    case WDC_OP_HTTP_RESPOND:
+    case WDC_OP_EFFECT_INVOKE:
     case WDC_OP_BLE_SET_VALUE:
     case WDC_OP_BLE_NOTIFY:
     case WDC_OP_KV_SET:

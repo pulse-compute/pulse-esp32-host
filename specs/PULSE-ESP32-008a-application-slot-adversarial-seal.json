@@ -1,0 +1,159 @@
+{
+  "schema": "pulse.esp32.hp3_5-application-slot-adversarial-seal.v1",
+  "pass": "HP3.5",
+  "phase": "APPLICATION_SLOT_ADVERSARIAL_POWER_LOSS_SEAL",
+  "status": "FROZEN",
+  "parent_authority": {
+    "path": "specs/PULSE-ESP32-008-application-slots.json",
+    "sha256": "79a5c85d8f75ac89ef9903bd8ee54f9400d8754a8c4deb806ab6644dc5e43f38"
+  },
+  "strong_invariant": {
+    "last_confirmed_application_destroyed": false,
+    "ambiguous_boot_authority": false,
+    "interrupted_commit_authority": "HIGHEST_COMPLETE_VALID_GENERATION",
+    "marker_complete_boundary": "NEW_GENERATION_MAY_WIN",
+    "marker_incomplete_boundary": "PREVIOUS_GENERATION_MUST_WIN",
+    "no_valid_generation": "FAIL_CLOSED_RECOVERY"
+  },
+  "deterministic_fault_model": {
+    "scope": "HOST_FLASH_AND_JOURNAL_SIMULATION",
+    "one_shot": true,
+    "trigger_index": "ONE_BASED_MATCHING_OPERATION",
+    "power_cycle_clears": "VOLATILE_FAULT_PLAN_ONLY",
+    "persistent_bytes_survive": true,
+    "operations": [
+      "SLOT_ERASE",
+      "SLOT_WRITE",
+      "METADATA_ERASE",
+      "METADATA_BODY_WRITE",
+      "METADATA_MARKER_WRITE"
+    ],
+    "metadata_record_bytes": 256,
+    "metadata_body_bytes": 252,
+    "metadata_marker_bytes": 4,
+    "journal_records": 2
+  },
+  "interruption_matrix": {
+    "input_bundle": {
+      "path": "examples/bundles/relay-controller/dist/relay-controller-r8.wdcb",
+      "sha256": "f7e9a32838448b7bc7b5ba11e619b903f1ce9c1822376efd6adbaecba3c9813e",
+      "bundle_bytes": 2169,
+      "artifact_bytes": 2361
+    },
+    "payload_write": {
+      "coverage": "EVERY_BYTE_PREFIX_INCLUSIVE",
+      "cut_range": "0..2361",
+      "cases": 2362
+    },
+    "slot_erase": {
+      "coverage": "SAFE_STRUCTURAL_BOUNDARIES",
+      "cut_offsets": [
+        0,
+        1,
+        4095,
+        4096,
+        2097151,
+        2097152
+      ],
+      "cases": 6
+    },
+    "journal": {
+      "target_records": [
+        0,
+        1
+      ],
+      "erase_cut_range": "0..256",
+      "body_cut_range": "0..252",
+      "marker_cut_range": "0..4",
+      "state_transitions": [
+        "EMPTY_TO_STAGED",
+        "STAGED_TO_VERIFIED",
+        "VERIFIED_TO_TRIAL",
+        "TRIAL_TO_TRIAL_RUNNING",
+        "TRIAL_RUNNING_TO_CONFIRMED",
+        "TRIAL_RUNNING_TO_REJECTED_FALLBACK",
+        "VERIFIED_TO_REJECTED",
+        "INVALID_CONFIRMED_TO_REJECTED_CONFIRMED_FALLBACK"
+      ],
+      "cases": 8240
+    },
+    "reset_during_confirmation": {
+      "target_records": [
+        0,
+        1
+      ],
+      "erase_body_marker_every_prefix": true,
+      "incomplete_outcome": "TRIAL_RUNNING_THEN_REJECT_ON_REBOOT",
+      "complete_marker_outcome": "NEW_CONFIRMED_GENERATION",
+      "cases": 1030
+    }
+  },
+  "adversarial_semantics": {
+    "journal_corruption_cases": [
+      "RECORD_0_CORRUPT_RECORD_1_WINS",
+      "RECORD_1_CORRUPT_RECORD_0_WINS",
+      "BOTH_CORRUPT_FAIL_CLOSED"
+    ],
+    "cases": [
+      "INVALID_ARTIFACT_HEADER_CRC",
+      "INVALID_INNER_BUNDLE_HASH",
+      "INVALID_SIGNATURE_WITH_VALID_OUTER_HASH",
+      "STORED_ARTIFACT_HASH_MISMATCH_AT_BOOT",
+      "ATOMIC_CONFIRMED_FALLBACK",
+      "TORN_ATOMIC_CONFIRMED_FALLBACK_RETRY",
+      "INCOMPATIBLE_RUNNING_HOST_FINGERPRINT",
+      "READINESS_TIMEOUT",
+      "TORN_SECOND_STAGING_COMMIT",
+      "TORN_VERIFIED_TO_TRIAL",
+      "TORN_TRIAL_TO_TRIAL_RUNNING",
+      "TORN_RUNTIME_FAULT_ATTRIBUTION",
+      "STALE_TRIAL_RUNNING_CANDIDATE",
+      "APPLICATION_WATCHDOG_ATTRIBUTION",
+      "HOST_WATCHDOG_ATTRIBUTION",
+      "REPEATED_GUEST_TRAPS"
+    ],
+    "repeated_guest_trap_cycles": 32
+  },
+  "physical_safe_subset": {
+    "campaign": "tests/hardware-in-loop/hp3_5-slot-power-loss/campaign.json",
+    "required_named_boards": [
+      "aitrip-esp32s3-devkitc-1-n8r2",
+      "seeed-xiao-esp32c6-4m"
+    ],
+    "inactive_slot_only": true,
+    "host_firmware_ota": false,
+    "external_loads": false,
+    "qualification_levels": {
+      "HOST_ADVERSARIAL_SEALED": "EXHAUSTIVE_HOST_MATRIX_PASS",
+      "DUAL_NAMED_BOARD_SAFE_SUBSET_OBSERVED": "BOTH_PHYSICAL_REPORTS_PASS"
+    }
+  },
+  "synthetic_seal": {
+    "schema": "pulse.esp32.hp3_5-slot-adversarial-smoke.v1",
+    "status": "PASS",
+    "total_cases": 11657,
+    "payload_write_cuts": 2362,
+    "slot_erase_cuts": 6,
+    "journal_interruption_cases": 8240,
+    "confirmation_reset_cases": 1030,
+    "journal_corruption_cases": 3,
+    "adversarial_semantic_cases": 16,
+    "repeated_trap_cycles": 32,
+    "last_confirmed_preserved": true,
+    "ambiguous_boot_authority": false,
+    "application_code_launched": false
+  },
+  "preserved_authorities": {
+    "hp1_resource_authority_sha256": "cc3afbfc4ff7d4a7b5b5aca6ae0b5953a34065501bbfea36d4580a2d193fd84d",
+    "native_extension_abi_sha256": "e92aaae33b4016f5e3d1ac41f34fac0b19569c7f0bbabba6ce3d4e2604f6e023",
+    "common_wasm_sha256": "ef8b21a4b7a423923c09f5e38fc626ff7d1cda856c4935db7f191695a333e5c4"
+  },
+  "excluded": [
+    "RAX",
+    "HOST_FIRMWARE_OTA",
+    "MQTT_OR_TRANSPORT_IMPLEMENTATION",
+    "EXTERNAL_PROVIDER",
+    "PULSE_CORE_CHANGES",
+    "PROTECTED_REMOTE_ADMINISTRATION"
+  ]
+}

@@ -1,0 +1,139 @@
+{
+  "aggregate": "HOST_ONLY_RECOVERY_IMPLEMENTED",
+  "audit": {
+    "automatic_entry": "RECOVERY_ENTRY is recorded from HP3 no-viable evidence without inventing a session identity",
+    "identity_binding": "accepted-command audit records carry authorization epoch, session nonce, command sequence, request ID, and principal SHA-256 but never authorization proof bytes",
+    "slot_transitions": "each durable staging, verification, rejection, or TRIAL metadata commit emits SLOT_TRANSITION with the bounded slot and artifact SHA-256",
+    "terminal_rule": "every accepted HP4.3 command produces exactly one retained terminal through the HP4.1 first-terminal-wins core"
+  },
+  "authority_bindings": {
+    "hp1_model_sha256": "cc3afbfc4ff7d4a7b5b5aca6ae0b5953a34065501bbfea36d4580a2d193fd84d",
+    "hp2_model_sha256": "f9dc94e2ea4bf45af14787671c9fd2ddfb71c888874c6ea8e722cdf0ec5da3f0",
+    "hp3_5_evidence_index_sha256": "3c7d209298ea0f4444991ec296f9b644bbb42428f1d63d7b475468ce2d71a6e9",
+    "hp3_5_model_sha256": "c52993ff889a3dffe2f87f54bd226e652592018410a24ad36b70592c35219a29",
+    "hp3_model_sha256": "79a5c85d8f75ac89ef9903bd8ee54f9400d8754a8c4deb806ab6644dc5e43f38",
+    "hp4_0_model_sha256": "c20f13c6c5817435a686837a70f5a9bd5b6802b020dad0a47ea2f29713f1f684",
+    "hp4_1_model_sha256": "c908deb69c830418c971c9de355e0d319f1e1dd2e2e71c728bdc535434c9a31a",
+    "hp4_2_model_sha256": "38f3c9f80204c655d318de5348d083efc754b9114a2e3ee174546c8666d745ea"
+  },
+  "candidate_staging": {
+    "activation": "a completely verified candidate becomes durable TRIAL before REBOOT_HANDOFF; the next boot remains owned by HP3",
+    "application_code_launched": false,
+    "deterministic_empty_selection": "when active and last-good are NONE, the existing HP3 inactive-slot selector chooses A",
+    "failure_mode": "RECOVERY for every recovery-origin abort, timeout, resource denial, stream failure, verifier denial, or journal failure before handoff",
+    "inactive_slot_only": true,
+    "resource_admission": "the unchanged HP1 exclusive gate requires 98,304 fixed bytes plus 65,536 update bytes and a 98,304-byte largest block",
+    "verification": [
+      "complete stored-artifact header and SHA-256",
+      "inner bundle hash and bundle policy",
+      "HP2 running-host compatibility and resource placement",
+      "security-version floor and artifact authority",
+      "replaceable administration artifact verifier"
+    ]
+  },
+  "claim": {
+    "application_code_executed": false,
+    "classification": "HOST_NATIVE_RECOVERY_TRANSACTION_ONLY",
+    "factory_host_writable": false,
+    "firmware_component_linked": true,
+    "host_firmware_ota_implemented": false,
+    "host_only_recovery_implemented": true,
+    "network_transport_implemented": false,
+    "partition_layout_changed": false,
+    "physical_execution": false,
+    "production_authenticator_implemented": false,
+    "production_cryptography": false,
+    "serial_driver_implemented": false,
+    "target_build_executed": false
+  },
+  "command_authority": {
+    "enabled_commands": [
+      "STATUS",
+      "BEGIN_UPDATE",
+      "WRITE_CHUNK",
+      "FINISH_UPDATE",
+      "ABORT",
+      "ENTER_RECOVERY",
+      "ACTIVATE_TRIAL",
+      "REBOOT"
+    ],
+    "enabled_mask": 255,
+    "empty_recovery_control_shape": ["ENTER_RECOVERY", "REBOOT", "ABORT while idle in RECOVERY"],
+    "host_source_rule": "RECOVERY and UPDATE sources and their HP1 priorities are derived inside wdc_admin; application, event, capability, and native-refinement callers cannot select or reserve them",
+    "replay_rule": "unauthorized, stale, replayed, out-of-order, expired, malformed, busy, or wrong-state requests are rejected before a ticket, replay advance, mode change, or slot mutation"
+  },
+  "component": {
+    "firmware_link": "firmware/main/app_main.c calls wdc_admin_recovery_link_anchor before the application pthread is created",
+    "header": "firmware/components/wdc_admin/include/wdc_admin_recovery.h",
+    "hp3_read_only_reboot_proof": "wdc_app_slots_validate_reboot_candidate",
+    "source": "firmware/components/wdc_admin/wdc_admin_recovery.c",
+    "update_extension": "firmware/components/wdc_admin/wdc_admin_update.c returns recovery-origin failures and aborts to RECOVERY"
+  },
+  "deferred": [
+    "HP4.4 adversarial administration and recovery seal",
+    "UART or USB serial driver and physical-board execution",
+    "Wi-Fi, TLS, HTTP, MQTT, or another network transport",
+    "external ESP32 provider or Pulse-core change",
+    "RAX or another deployment envelope",
+    "host-firmware, bootloader, factory-host, or partition-table OTA",
+    "redundant-versus-capacity partition redesign",
+    "production signing, authentication, provisioning, or key lifecycle",
+    "new physical-board result before HP5.5"
+  ],
+  "entry": {
+    "administrative": "an accepted ENTER_RECOVERY transitions NORMAL to QUIESCE and requires positive guest and native-refinement quiesce/unload evidence before RECOVERY",
+    "automatic": "an HP3 BOOT_RECOVERY result with selected and fallback slots NONE, no reboot request, no application launch, and metadata active/last-good NONE initializes RECOVERY directly",
+    "automatic_failure_rule": "malformed or metadata-inconsistent boot evidence fails initialization without manufacturing recovery authority",
+    "no_reboot_loop": true
+  },
+  "host_only": {
+    "administration_available_without_application": true,
+    "application_loaded_in_recovery": false,
+    "native_refinements_loaded_in_recovery": false,
+    "recovery_reserve_bytes": 16384,
+    "status_response_bytes": 64,
+    "status_secret_free": true
+  },
+  "pass": "HP4.3",
+  "reboot": {
+    "application_code_launched_during_validation": false,
+    "handoff_owner": "HP3 boot selection and probation",
+    "no_viable_candidate": "FAILED terminal, RECOVERY retained, and no reboot loop",
+    "safe_guard": "REBOOT requires recovery idle state, no loaded application/refinements, an active CONFIRMED or TRIAL record, complete read-only artifact verification, HP2 prelaunch admission, and unchanged metadata"
+  },
+  "schema": "pulse.esp32.hp4_3-host-only-recovery.v1",
+  "source_history": {
+    "current_firmware_file_count": 150,
+    "current_firmware_sha256": "d36978214d8e1d892961e7239facafa49eb1ed4150843dd1eeb23dec5d8ceb5f",
+    "current_native_sdk_file_count": 1,
+    "current_native_sdk_sha256": "a7ceb397ab009950a1ebbdea60280f7944020a6523252b7de0d781e3e798bdd4",
+    "hp4_2_archive_manifest_file_count": 462,
+    "hp4_2_archive_sha256": "f028891506f01796e214f222763b3182ae91c24e541be9af32dfed8151738bd3",
+    "hp4_2_firmware_file_count": 148,
+    "hp4_2_firmware_sha256": "77f4d2044776c6828e443486ee21199f95b4e1f34ae704c7323e901d51602eca",
+    "hp4_2_native_sdk_file_count": 1,
+    "hp4_2_native_sdk_sha256": "a7ceb397ab009950a1ebbdea60280f7944020a6523252b7de0d781e3e798bdd4"
+  },
+  "state_machine": {
+    "legal_transitions": [
+      "NORMAL -> QUIESCE on accepted ENTER_RECOVERY",
+      "QUIESCE -> RECOVERY after positive host-owned unload evidence",
+      "QUIESCE -> NORMAL on entry failure or timeout",
+      "RECOVERY -> UPDATE after HP1 admission and inactive-slot stage begin",
+      "UPDATE -> RECOVERY on recovery-origin abort, failure, or timeout",
+      "RECOVERY -> RECOVERY on STATUS or idle ABORT",
+      "RECOVERY -> REBOOT_HANDOFF only after read-only HP3 viability proof",
+      "UPDATE -> REBOOT_HANDOFF only after durable TRIAL read-back"
+    ],
+    "prohibited": "RECOVERY never transitions directly to NORMAL; application execution resumes only after reboot through HP3"
+  },
+  "status": "IMPLEMENTED",
+  "verification": {
+    "engine_static_bytes": 3112,
+    "native_case_count": 12,
+    "native_smoke": "tests/contract/hp4_3_admin_recovery_smoke.c",
+    "recovery_status_bytes": 64,
+    "update_engine_static_bytes_unchanged": 3096,
+    "working_buffer_bytes": 65536
+  }
+}

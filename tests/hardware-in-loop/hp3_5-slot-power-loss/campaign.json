@@ -1,0 +1,122 @@
+{
+  "schema": "pulse.esp32.hp3_5-slot-hardware-campaign.v1",
+  "campaign_id": "hp3_5-safe-inactive-slot-v1",
+  "pass": "HP3.5",
+  "status": "FROZEN",
+  "execution_status": "NOT_RUN",
+  "board_lanes": [
+    {
+      "board_id": "aitrip-esp32s3-devkitc-1-n8r2",
+      "target": "esp32s3",
+      "flash_bytes": 8388608,
+      "psram_bytes": 2097152,
+      "board_sha256": "543f0e4bad0083d7992c090132615888282ec47b4790278c59881952c484db25",
+      "partitions_sha256": "402d1b72c259f8ca23b5e9fc11a8badc02976ad71684510a2487e6e830e803a0"
+    },
+    {
+      "board_id": "seeed-xiao-esp32c6-4m",
+      "target": "esp32c6",
+      "flash_bytes": 4194304,
+      "psram_bytes": 0,
+      "board_sha256": "a87a5dc33b8460065582b4aacdb596132151a6c380fe44d25bb0da679028f915",
+      "partitions_sha256": "b5f67b82e686b9b613937d1670297da29d1535f9ecc580fa0ec57fe9a73d622f"
+    }
+  ],
+  "guardrails": {
+    "named_board_identity_required": true,
+    "canonical_partition_hash_required": true,
+    "confirmed_slot_write_allowed": false,
+    "inactive_slot_only": true,
+    "factory_host_partition_write_allowed": false,
+    "host_firmware_ota": false,
+    "gpio_or_external_loads": false,
+    "network_or_provider": false,
+    "operator_attended": true,
+    "full_flash_backup_required": true,
+    "restore_path_required": true
+  },
+  "checkpoints": [
+    {
+      "id": "baseline-confirmed-authority",
+      "fault": "NONE",
+      "expected": "ONE_CONFIRMED_APPLICATION_AND_UNAMBIGUOUS_AUTHORITY"
+    },
+    {
+      "id": "inactive-payload-zero-prefix",
+      "fault": "RESET_BEFORE_FIRST_PAYLOAD_BYTE",
+      "expected": "BASELINE_CONFIRMED_APPLICATION_BOOTS"
+    },
+    {
+      "id": "inactive-payload-sector-boundary",
+      "fault": "RESET_AFTER_4096_PAYLOAD_BYTES_OR_ARTIFACT_END",
+      "expected": "BASELINE_CONFIRMED_APPLICATION_BOOTS"
+    },
+    {
+      "id": "inactive-payload-complete-no-metadata",
+      "fault": "RESET_AFTER_PAYLOAD_BEFORE_METADATA",
+      "expected": "BASELINE_CONFIRMED_APPLICATION_BOOTS"
+    },
+    {
+      "id": "journal-record-0-corrupt",
+      "fault": "CORRUPT_ONLY_RECORD_0",
+      "expected": "RECORD_1_IS_AUTHORITATIVE"
+    },
+    {
+      "id": "journal-record-1-corrupt",
+      "fault": "CORRUPT_ONLY_RECORD_1",
+      "expected": "RECORD_0_IS_AUTHORITATIVE"
+    },
+    {
+      "id": "stale-trial-reset",
+      "fault": "RESET_WITH_TRIAL_BOOT_IN_PROGRESS",
+      "expected": "CANDIDATE_REJECTED_AND_CONFIRMED_FALLBACK_SELECTED"
+    },
+    {
+      "id": "readiness-timeout",
+      "fault": "WITHHOLD_READINESS_TO_DEADLINE",
+      "expected": "CANDIDATE_REJECTED_AND_CONFIRMED_FALLBACK_SELECTED"
+    },
+    {
+      "id": "guest-trap-repeat",
+      "fault": "EIGHT_GUEST_TRAPS",
+      "expected": "CONFIRMED_APPLICATION_PRESERVED_EACH_CYCLE"
+    },
+    {
+      "id": "application-watchdog-attribution",
+      "fault": "APPLICATION_WATCHDOG_DURING_TRIAL",
+      "expected": "ATTRIBUTED_REJECTION_AND_CONFIRMED_FALLBACK"
+    },
+    {
+      "id": "host-watchdog-attribution",
+      "fault": "HOST_WATCHDOG_DURING_TRIAL",
+      "expected": "ATTRIBUTED_REJECTION_AND_CONFIRMED_FALLBACK"
+    },
+    {
+      "id": "confirmation-before-marker",
+      "fault": "RESET_BEFORE_CONFIRMATION_COMMIT_MARKER",
+      "expected": "OLD_TRIAL_GENERATION_THEN_CONFIRMED_FALLBACK"
+    },
+    {
+      "id": "confirmation-after-marker",
+      "fault": "RESET_AFTER_CONFIRMATION_COMMIT_MARKER",
+      "expected": "NEW_CONFIRMED_GENERATION"
+    }
+  ],
+  "board_report_contract": {
+    "schema": "pulse.esp32.hp3_5-slot-board-evidence.v1",
+    "required_origin": "PHYSICAL_NAMED_BOARD",
+    "required_status": "PASS",
+    "required_checkpoint_count": 13,
+    "serial_log_required": true,
+    "serial_log_sha256_required": true,
+    "module_or_board_marking_required": true,
+    "last_confirmed_destroyed": false,
+    "ambiguous_boot_authority": false,
+    "application_code_launched_before_authority": false
+  },
+  "promotion": {
+    "host_only": "HOST_ADVERSARIAL_SEALED",
+    "both_board_reports_pass": "DUAL_NAMED_BOARD_SAFE_SUBSET_OBSERVED",
+    "single_or_missing_board_report": "HARDWARE_PENDING"
+  }
+}

@@ -1,0 +1,8 @@
+CONFIG_ELF_LOADER=y
+# Dynamic C6 ELF segments must remain writable while loading and executable
+# afterward; the default fixed PMP IRAM/DRAM split cannot express that span.
+# CONFIG_ESP_SYSTEM_PMP_IDRAM_SPLIT is not set
+# CONFIG_ELF_DYNAMIC_LOAD_SHARED_OBJECT is not set
+# CONFIG_ELF_LOADER_LIBC_SYMBOLS is not set
+# CONFIG_ELF_LOADER_ESPIDF_SYMBOLS is not set
+# CONFIG_ELF_LOADER_CUSTOMER_SYMBOLS is not set

@@ -1,2 +1,3 @@
 dependencies:
-  espressif/wasm-micro-runtime: "^2.4.0~1"
+  espressif/wasm-micro-runtime:
+    version: "2.4.0~1"

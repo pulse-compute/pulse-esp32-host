@@ -1,0 +1,14 @@
+{
+  "schema": "pulse.esp32.board-identity.v1",
+  "board_id": "aitrip-esp32s3-devkitc-1-n8r2",
+  "manufacturer": "AITRIP",
+  "model": "ESP32-S3-DevKitC-1 N8R2",
+  "module": "ESP32-S3-WROOM-1-N8R2",
+  "target": "esp32s3",
+  "isa": "xtensa",
+  "flash_bytes": 8388608,
+  "psram_bytes": 2097152,
+  "psram_mode": "quad",
+  "identity_authority": "operator_attested_named_board",
+  "hp0_observation": "NAMED_BOARD_OBSERVED"
+}

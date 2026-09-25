@@ -4,6 +4,8 @@
 
 static const WdcDeviceProfile *s_profile;
 static WdcNetStatus s_status;
+static WdcNetHttpResponseHookFn s_http_response_hook;
+static void *s_http_response_context;
 
 const char *wdc_net_state_name(WdcNetState state)
 {
@@ -386,6 +388,15 @@ int32_t wdc_net_host_call(void *ctx,
     case WDC_OP_MQTT_PUBLISH: return mqtt_publish(request, request_len, response, response_cap, out_response_len);
     case WDC_OP_MQTT_SUBSCRIBE: return mqtt_subscribe(request, request_len, response, response_cap, out_response_len);
     case WDC_OP_HTTP_REQUEST: return http_request(request, request_len, response, response_cap, out_response_len);
+    case WDC_OP_HTTP_RESPOND:
+        if (s_http_response_hook == NULL) {
+            return write_status_response(response, response_cap,
+                                         out_response_len,
+                                         WDC_ERR_INVALID_STATE);
+        }
+        return s_http_response_hook(s_http_response_context, request,
+                                    request_len, response, response_cap,
+                                    out_response_len);
     default: return WDC_ERR_UNSUPPORTED_OPCODE;
     }
 }
@@ -420,7 +431,33 @@ void wdc_net_reset_for_test(void)
 {
     memset(&s_status, 0, sizeof(s_status));
     s_profile = NULL;
+    s_http_response_hook = NULL;
+    s_http_response_context = NULL;
     wdc_host_call_clear_net_hook();
+}
+
+int32_t wdc_net_set_http_response_hook(WdcNetHttpResponseHookFn hook,
+                                       void *context)
+{
+    if (hook == NULL || context == NULL) {
+        return WDC_ERR_BAD_POINTER;
+    }
+    if (s_http_response_hook != NULL &&
+        (s_http_response_hook != hook || s_http_response_context != context)) {
+        return WDC_ERR_INVALID_STATE;
+    }
+    s_http_response_hook = hook;
+    s_http_response_context = context;
+    return WDC_OK;
+}
+
+void wdc_net_clear_http_response_hook(WdcNetHttpResponseHookFn hook,
+                                      void *context)
+{
+    if (s_http_response_hook == hook && s_http_response_context == context) {
+        s_http_response_hook = NULL;
+        s_http_response_context = NULL;
+    }
 }
 
 void wdc_net_get_status(WdcNetStatus *out_status)

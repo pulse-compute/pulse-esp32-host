@@ -1,0 +1,39 @@
+{
+  "build_lock_sha256": "c03f975aef3b966677dd5e3ce7f118ed4788b13aa368f5ae25e83ac4719d8114",
+  "compatibility_sha256": "a665cb8c7d8baabe53c400168cfab55290c4e0a26854e9cf4d2b2b3060ac6a81",
+  "compatibility_surface": {
+    "abi_authority_sha256": "7e0c987fb67749d39a39e3edc1363b1bcb9694c8e8a482dfd8006b466671f879",
+    "board_id": "aitrip-esp32s3-devkitc-1-n8r2",
+    "capabilities": [
+      "pulse.application-slots.v1",
+      "pulse.event-effect.v1",
+      "pulse.native-refinement.v1",
+      "pulse.wasm-application.v1"
+    ],
+    "capability_mask": 15,
+    "control_resource_profile": "esp32s3-psram-optimization-v1",
+    "flash_bytes": 8388608,
+    "format_version": 1,
+    "host_abi": {
+      "major": 1,
+      "minor": 0
+    },
+    "host_profile_id": "esp32s3-psram-slots-v1",
+    "native_extension_abi_sha256": "e92aaae33b4016f5e3d1ac41f34fac0b19569c7f0bbabba6ce3d4e2604f6e023",
+    "psram_bytes": 2097152,
+    "resource_authority_sha256": "cc3afbfc4ff7d4a7b5b5aca6ae0b5953a34065501bbfea36d4580a2d193fd84d",
+    "resources": {
+      "exclusive_update_working_bytes": 65536,
+      "fixed_control_reserve_bytes": 98304,
+      "largest_block_floor_bytes": 32768,
+      "maximum_application_internal_bytes": 131072,
+      "maximum_target_optimized_bytes": 1048576,
+      "maximum_transition_scratch_bytes": 16384,
+      "target_optimized_floor_bytes": 131072
+    },
+    "target": "esp32s3"
+  },
+  "fingerprint_sha256": "d314cce7c7679085357ae820fc69c3a880c599be3e5719f7da0a79d62f093201",
+  "fingerprint_version": 1,
+  "schema": "pulse.esp32.running-host-fingerprint.v1"
+}

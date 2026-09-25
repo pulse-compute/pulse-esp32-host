@@ -1,0 +1,183 @@
+{
+  "admission": {
+    "application_internal_terms": [
+      "guest_linear_memory_bytes",
+      "runtime_stack_bytes",
+      "network_working_bytes",
+      "capability_working_bytes",
+      "native_extension_bytes"
+    ],
+    "denials": [
+      "APPLICATION_PRIORITY",
+      "UNBOUNDED_ALLOCATION",
+      "PSRAM_REQUIRED",
+      "APPLICATION_BUDGET",
+      "INTERNAL_FREE",
+      "LARGEST_BLOCK",
+      "PSRAM_FREE",
+      "ARITHMETIC"
+    ],
+    "exclusive_update_required": "fixed_control_reserve_bytes + exclusive_update_working_bytes",
+    "normal_required": "fixed_control_reserve_bytes + application_internal_bytes",
+    "priority_request_rule": "requested_task_priority must be zero; the host assigns the application class",
+    "required_internal_free": "max(transition_required, exclusive_update_required)",
+    "required_largest_block": "max(largest_application_allocation_bytes + largest_block_floor_bytes, update_largest_allocation_bytes + largest_block_floor_bytes)",
+    "transition_required": "normal_required + transition_scratch_bytes",
+    "unbounded_allocation_rule": "requests_unbounded_allocation must be false"
+  },
+  "authority": {
+    "common_wasm_sha256": "ef8b21a4b7a423923c09f5e38fc626ff7d1cda856c4935db7f191695a333e5c4",
+    "hp0_terminal_result": "DUAL_ISA_PRESSURE_OBSERVED",
+    "hx5b_pressure_model_sha256": "1cc8c636724b38747e5f7c87342f40d00cbf8b7c0946c3c09d83f6cf940a2377",
+    "native_extension_abi_sha256": "e92aaae33b4016f5e3d1ac41f34fac0b19569c7f0bbabba6ce3d4e2604f6e023",
+    "source_snapshot_sha256": "e12962aafe1d3529fe32f27aa161218096660c38c8fadda9c2cad1f8b7c06e0f"
+  },
+  "deferred": [
+    "production peripheral or interrupt source",
+    "MQTT or other application protocol",
+    "application-slot and fallback implementation",
+    "protected administrative listener or update transport",
+    "host build-plan, lock, and fingerprint resolution",
+    "physical HP1 rerun"
+  ],
+  "isr_contract": {
+    "capacity": 8,
+    "consumer": "single host-owned control task",
+    "forbidden": [
+      "Wasm entry",
+      "native-extension lifecycle entry",
+      "allocation",
+      "logging",
+      "parsing",
+      "application callback"
+    ],
+    "notification": "direct FreeRTOS task notification after accepted capture",
+    "overflow_policy": "LATCH_RECOVERY_REJECT_NEWEST",
+    "producer": "single ISR",
+    "record_bytes": 16
+  },
+  "pass": "HP1",
+  "phase": "HOST_KERNEL_RESOURCE_AUTHORITY",
+  "priority_classes": [
+    {
+      "class": "SAFETY_RECOVERY",
+      "freertos_priority": 13,
+      "overflow": "LATCH_RECOVERY_REJECT_NEWEST",
+      "queue_capacity": 8,
+      "sources": [
+        "SAFETY",
+        "WATCHDOG",
+        "RECOVERY"
+      ],
+      "stack_bytes": 4096
+    },
+    {
+      "class": "ADMINISTRATION",
+      "freertos_priority": 11,
+      "overflow": "TERMINAL_REJECT_NEWEST",
+      "queue_capacity": 8,
+      "sources": [
+        "ADMINISTRATION",
+        "UPDATE"
+      ],
+      "stack_bytes": 6144
+    },
+    {
+      "class": "NETWORK",
+      "freertos_priority": 9,
+      "overflow": "TERMINAL_REJECT_NEWEST",
+      "queue_capacity": 8,
+      "sources": [
+        "NETWORK_MAINTENANCE"
+      ],
+      "stack_bytes": 6144
+    },
+    {
+      "class": "CAPABILITY",
+      "freertos_priority": 7,
+      "overflow": "TERMINAL_REJECT_NEWEST",
+      "queue_capacity": 16,
+      "sources": [
+        "CAPABILITY"
+      ],
+      "stack_bytes": 4096
+    },
+    {
+      "class": "APPLICATION",
+      "freertos_priority": 5,
+      "overflow": "TERMINAL_REJECT_NEWEST",
+      "queue_capacity": 16,
+      "sources": [
+        "APPLICATION"
+      ],
+      "stack_bytes": 8192
+    }
+  ],
+  "profiles": {
+    "c6_minimum": {
+      "exclusive_update_working_bytes": 65536,
+      "fixed_control_reserve_bytes": 98304,
+      "kernel_static_bytes": 8192,
+      "largest_block_floor_bytes": 32768,
+      "maximum_application_internal_bytes": 131072,
+      "maximum_application_psram_bytes": 0,
+      "maximum_transition_scratch_bytes": 16384,
+      "profile_id": "esp32c6-no-psram-minimum-v1",
+      "psram_supported": false,
+      "reserve_breakdown": {
+        "administration_bytes": 12288,
+        "control_metadata_bytes": 8192,
+        "recovery_bytes": 16384,
+        "task_stacks_bytes": 28672,
+        "verification_bytes": 24576
+      },
+      "target": "esp32c6",
+      "update_largest_allocation_bytes": 65536
+    },
+    "s3_optimization": {
+      "control_reserve_must_equal_c6": true,
+      "fixed_control_reserve_bytes": 98304,
+      "maximum_application_internal_bytes": 131072,
+      "maximum_application_psram_bytes": 1048576,
+      "profile_id": "esp32s3-psram-optimization-v1",
+      "psram_floor_bytes": 131072,
+      "psram_supported": true,
+      "target": "esp32s3"
+    }
+  },
+  "queue_contract": {
+    "accepted_item_terminal_dispositions": [
+      "SUCCEEDED",
+      "FAILED",
+      "TIMED_OUT",
+      "CANCELLED"
+    ],
+    "application_cannot_select_class_or_priority": true,
+    "completion_release": "caller takes exactly one terminal completion before the per-class slot is reusable",
+    "overflow_terminal_disposition": "REJECTED_OVERFLOW",
+    "slot_partition": "per priority class",
+    "storage": "fixed static arrays",
+    "ticket_generation": "bounded slot plus generation; no pointer identity"
+  },
+  "schema": "pulse.esp32.hp1-host-kernel-resource-authority.v1",
+  "sizing_evidence": {
+    "c6_hx5b_minimum_internal_free_bytes": 255032,
+    "c6_hx5b_minimum_internal_largest_block_bytes": 221184,
+    "c6_psram_bytes": 0,
+    "classification": "retained HP0 evidence; sizing input, not HP1 physical execution",
+    "s3_hx5b_minimum_internal_free_bytes": 192691,
+    "s3_hx5b_minimum_internal_largest_block_bytes": 96256,
+    "s3_hx5b_minimum_psram_free_bytes": 2075684
+  },
+  "status": "FROZEN",
+  "synthetic_seal": {
+    "admission_denials": 8,
+    "case_count": 9,
+    "isr_captures": 8,
+    "isr_overflows": 1,
+    "pressure_accepted": 320,
+    "pressure_retained": 0,
+    "pressure_rounds": 64,
+    "pressure_terminal": 320
+  }
+}

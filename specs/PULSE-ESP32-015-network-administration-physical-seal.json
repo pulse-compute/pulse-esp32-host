@@ -1,0 +1,85 @@
+{
+  "aggregate": "HARDWARE_PENDING",
+  "authority_bindings": {
+    "campaign_sha256": "7a19148314f4bb5f2d5a03e5918324254afc4ece9eeff800b45c8ed0931f545e",
+    "hp5_model_sha256": "4e5a01034ddaa27ed53439dbc8fc605b0647d02afe91e3f051ebe2ffd3163c6f",
+    "s3_lock_sha256": "88fdf8cf491215342717c0546984660a04211b88b2ff540fdf5e91bb297c8533",
+    "s3_running_fingerprint_sha256": "ba7ec4000735f4bb1cb64d05c512a8f455d11d9ae50bbe15c46f018209c9b066",
+    "c6_lock_sha256": "9114579dc7e213dcec95effaaa1fb400961d93e6a2c9fb204cb3bc40112b2053",
+    "c6_running_fingerprint_sha256": "6fe1b5728634e2eed8564e8cc9fb0d0d32f72c7fe8c04240035f71dacbd504ee"
+  },
+  "claim": {
+    "dual_named_board_physical_execution": false,
+    "firmware_component_linked": true,
+    "historical_hp2_locks_relabelled": false,
+    "host_firmware_ota_implemented": false,
+    "hp5_network_administration_fixture_implemented": true,
+    "partition_layout_changed": false,
+    "production_authenticator_implemented": false,
+    "production_credentials_in_source": false,
+    "production_cryptography_validated": false,
+    "target_build_executed": false
+  },
+  "deferred": [
+    "two accepted physical runs on the exact named S3 and C6 boards",
+    "the DUAL_NAMED_BOARD_HP5_NETWORK_ADMIN_OBSERVED aggregate",
+    "production authenticator, credential provisioning, certificate issuance, and private-key lifecycle",
+    "HP6 thin external ESP32 provider and developer path",
+    "HP7 MQTT customer zero and HP7.5 MQTT adversarial dual-board seal",
+    "HP8 external conformance and reconciliation",
+    "host-firmware, bootloader, factory-host, or partition-table OTA"
+  ],
+  "idf_lane": {
+    "source_commit": "296b6eab9445fd720e71aecab961e2d3fbca9944",
+    "version": "v5.4.4"
+  },
+  "invariants": {
+    "administration_authority": "HP4 remains the only replay, command-acceptance, terminal, audit, update, and recovery authority",
+    "application_authority": "HP5 HTTP dispatch remains one bounded Wasm request and at most one first-response-wins effect",
+    "credentials": "test Wi-Fi credentials, TLS private key, certificate, and administrator proof are generated outside source and are forbidden in retained evidence",
+    "historical_evidence": "HP2 plans, locks, and running fingerprints remain byte-for-byte unchanged and are never relabelled as HP5.5 evidence",
+    "promotion": "HP6 remains blocked until two distinct accepted named-board physical reports produce the exact HP5.5 aggregate",
+    "update_authority": "only inactive application slots are writable; factory host, bootloader, partition table, and host firmware are not update targets"
+  },
+  "pass": "HP5.5",
+  "phase": "NETWORK_ADMINISTRATION_PHYSICAL_SEAL",
+  "physical_campaign": {
+    "application_port": 443,
+    "administration_port": 8443,
+    "checkpoint_count": 29,
+    "expected_aggregate": "DUAL_NAMED_BOARD_HP5_NETWORK_ADMIN_OBSERVED",
+    "required_named_boards": [
+      "aitrip-esp32s3-devkitc-1-n8r2",
+      "seeed-xiao-esp32c6-4m"
+    ],
+    "status": "NOT_RUN"
+  },
+  "remediation": {
+    "classification": "NARROW_DUAL_TARGET_UPDATE_INITIALIZATION_FIX",
+    "c6_behavior_changed": false,
+    "crossed_profile_fingerprint_rejected": true,
+    "path": "firmware/components/wdc_admin/wdc_admin_update.c",
+    "sha256": "56dd8c17abe534e2f2bc52568401158e96cbbf031c4499258eb1d36c70384686",
+    "s3_psram_profile_enabled": true
+  },
+  "schema": "pulse.esp32.hp5_5-network-administration-physical-seal.v1",
+  "source_history": {
+    "current_components_file_count": 127,
+    "current_components_sha256": "c34a96f7d08055a54659fead1925da1ee7a776fb016c05309e9d11edb821a4a9",
+    "current_firmware_file_count": 168,
+    "current_firmware_sha256": "d60e2669cd3b2dd5869e2305c92e39913b270ba9d54844d3a34d614681c5a98a",
+    "current_guest_sdk_file_count": 13,
+    "current_guest_sdk_sha256": "bc5a537e98343c030ad03c85427c55b244d954a1b26e91c5796f40ba0185f0b3",
+    "current_main_file_count": 4,
+    "current_main_sha256": "cc7995885e99cf4617706d6ea7c39e7c294c10ef745c1a64d21e331f2b1a001d",
+    "current_native_sdk_file_count": 1,
+    "current_native_sdk_sha256": "a7ceb397ab009950a1ebbdea60280f7944020a6523252b7de0d781e3e798bdd4",
+    "hp5_archive_manifest_file_count": 489,
+    "hp5_archive_payload_bytes": 3880933,
+    "hp5_archive_sha256": "e7df20f0909afbf2b3b8e4bea9b2b5a4ac40682471ea31c60b3ce344405ed347",
+    "hp5_archive_size_bytes": 1181638,
+    "hp5_firmware_file_count": 159,
+    "hp5_firmware_sha256": "2e94b65a03a0612d4e770dc0f9b624dab874a75bf334bbd5173023427b7076a5"
+  },
+  "status": "READY_FOR_PHYSICAL_EXECUTION"
+}

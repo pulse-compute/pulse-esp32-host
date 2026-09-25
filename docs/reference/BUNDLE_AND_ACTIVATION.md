@@ -50,29 +50,38 @@ signature algorithm/key/value
 
 The manifest is not authority by itself. It is a request that must be verified against the shell policy and device profile.
 
-## Slots
+## HP3 application artifact and slots
 
-The partition model uses native ESP-IDF OTA for the shell and custom data partitions for bundles:
+The signed bundle is wrapped in a fixed 192-byte HP3 application header. The
+header binds application identity/version, security counter, HP2 application
+requirements, bundle hash, total sizes, and a CRC. Production staging also
+requires an artifact-authority verifier. The fixed format is not RAX.
+
+The partition model keeps one fixed factory host image and custom data
+partitions for Pulse applications:
 
 ```text
-ota_0 / ota_1   native firmware images
+factory         native host firmware
 wasm_a          WASM bundle slot A
 wasm_b          WASM bundle slot B
 wasm_meta       bundle activation metadata journal
 ```
+
+Only the inactive application slot may be erased or streamed. Host-firmware
+OTA is not part of HP3.
 
 ## Metadata state
 
 Slot states:
 
 ```text
-empty
-downloaded
-verified
-pending
-running_pending
-confirmed
-failed
+EMPTY
+STAGED
+VERIFIED
+TRIAL
+TRIAL_RUNNING (internal boot-attribution substate)
+CONFIRMED
+REJECTED
 ```
 
 `WdcBundleMetadataV1` tracks:
@@ -83,44 +92,56 @@ failed
 - bundle version,
 - security counter,
 - payload hash,
+- artifact format, byte count, and artifact hash,
 - candidate boot count,
 - candidate fault count,
+- trial boot-in-progress and boot generation,
+- last reset attribution and rejected slot,
 - last failure reason,
 - metadata generation,
 - metadata CRC.
 
 ## Journaled metadata
 
-R8.1 hardened `wasm_meta` into a two-record journal with commit markers and generation selection.
+R8.1 introduced the two-record journal; HP3 evolves the same authority for
+application artifacts and trial attribution. Record bodies are written before
+their commit markers. Reads select the highest valid generation, tolerate one
+corrupt peer, and reject two invalid non-erased records or divergent records at
+the same generation.
 
-This reduces the risk of losing metadata during power loss. It is not a substitute for real hardware power-loss testing, which remains pending.
+This establishes the persistence algorithm. Exhaustive interruption and real
+hardware power-loss testing remain HP3.5.
 
 ## Activation state machine
 
 ```text
-install bundle into inactive slot
-  -> verify R6/R9 policy
-  -> mark slot verified
-  -> prepare pending candidate
-  -> reboot or simulated boot
-  -> activation_on_boot selects candidate
-  -> candidate runs in probation
-  -> shell confirms if health policy passes
-  -> slot becomes confirmed and last_good
+stream fixed artifact into inactive slot
+  -> hash stored artifact and inner bundle
+  -> verify bundle, production authority, security floor, and HP2 compatibility
+  -> journal STAGED then VERIFIED
+  -> mark TRIAL
+  -> boot persists attempt/reset attribution before entry
+  -> reread artifact; apply HP2 fingerprint and HP1 live admission
+  -> trial runs in host-owned probation
+  -> host confirms after stable readiness/health/resource evidence
+  -> slot becomes CONFIRMED and last_good
 ```
 
 Failure path:
 
 ```text
-candidate running_pending
-  -> runtime fault / health failure / unconfirmed reset
-  -> candidate marked failed
-  -> rollback to last_good_slot
+trial running
+  -> runtime fault / health failure / readiness timeout / attributed reset
+  -> trial marked REJECTED
+  -> fallback reboot to last_good_slot, or explicit recovery if none is viable
 ```
 
 ## Confirmation rule
 
-The WASM app may report health, but it does not decide durable acceptance. The shell owns confirmation.
+The Wasm app may participate in readiness and health checks, but it does not
+decide durable acceptance. The host requires readiness, successful health,
+responsive administration, preserved resource floors, and a stable-time
+window before confirmation.
 
 ## Local activation simulation
 
@@ -161,4 +182,3 @@ Production:
 - anti-rollback security counter must meet or exceed the metadata-derived floor.
 
 The current scaffold does not include deployment-grade Ed25519 math. Production integration must provide a vetted implementation through `WdcBundleSignatureVerifyFn`.
-

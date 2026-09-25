@@ -2,6 +2,17 @@
 
 #include <string.h>
 
+#ifdef ESP_PLATFORM
+#include "freertos/FreeRTOS.h"
+#include "freertos/portmacro.h"
+static portMUX_TYPE s_default_queue_lock = portMUX_INITIALIZER_UNLOCKED;
+#define DEFAULT_QUEUE_LOCK() portENTER_CRITICAL(&s_default_queue_lock)
+#define DEFAULT_QUEUE_UNLOCK() portEXIT_CRITICAL(&s_default_queue_lock)
+#else
+#define DEFAULT_QUEUE_LOCK() ((void)0)
+#define DEFAULT_QUEUE_UNLOCK() ((void)0)
+#endif
+
 static WdcEventQueue s_default_queue;
 
 int32_t wdc_event_make(WdcEvent *event,
@@ -100,27 +111,47 @@ uint32_t wdc_event_queue_dropped(const WdcEventQueue *queue)
 
 int32_t wdc_events_init(void)
 {
-    return wdc_event_queue_init(&s_default_queue);
+    int32_t status;
+    DEFAULT_QUEUE_LOCK();
+    status = wdc_event_queue_init(&s_default_queue);
+    DEFAULT_QUEUE_UNLOCK();
+    return status;
 }
 
 int32_t wdc_events_post(const WdcEvent *event)
 {
-    return wdc_event_queue_push(&s_default_queue, event);
+    int32_t status;
+    DEFAULT_QUEUE_LOCK();
+    status = wdc_event_queue_push(&s_default_queue, event);
+    DEFAULT_QUEUE_UNLOCK();
+    return status;
 }
 
 int32_t wdc_events_next(WdcEvent *out)
 {
-    return wdc_event_queue_pop(&s_default_queue, out);
+    int32_t status;
+    DEFAULT_QUEUE_LOCK();
+    status = wdc_event_queue_pop(&s_default_queue, out);
+    DEFAULT_QUEUE_UNLOCK();
+    return status;
 }
 
 size_t wdc_events_pending(void)
 {
-    return wdc_event_queue_count(&s_default_queue);
+    size_t pending;
+    DEFAULT_QUEUE_LOCK();
+    pending = wdc_event_queue_count(&s_default_queue);
+    DEFAULT_QUEUE_UNLOCK();
+    return pending;
 }
 
 uint32_t wdc_events_dropped(void)
 {
-    return wdc_event_queue_dropped(&s_default_queue);
+    uint32_t dropped;
+    DEFAULT_QUEUE_LOCK();
+    dropped = wdc_event_queue_dropped(&s_default_queue);
+    DEFAULT_QUEUE_UNLOCK();
+    return dropped;
 }
 
 
@@ -129,8 +160,10 @@ void wdc_events_get_stats(WdcEventQueueStats *out_stats)
     if (out_stats == NULL) {
         return;
     }
+    DEFAULT_QUEUE_LOCK();
     out_stats->pending = s_default_queue.count;
     out_stats->dropped = s_default_queue.dropped;
     out_stats->capacity = WDC_EVENT_QUEUE_CAPACITY_DEFAULT;
     out_stats->overflow_policy = WDC_EVENT_OVERFLOW_DROP_NEWEST;
+    DEFAULT_QUEUE_UNLOCK();
 }

@@ -1,0 +1,145 @@
+{
+  "aggregate": "HOST_EXCLUSIVE_UPDATE_TRANSACTION_IMPLEMENTED",
+  "authority_bindings": {
+    "hp1_model_sha256": "cc3afbfc4ff7d4a7b5b5aca6ae0b5953a34065501bbfea36d4580a2d193fd84d",
+    "hp2_model_sha256": "f9dc94e2ea4bf45af14787671c9fd2ddfb71c888874c6ea8e722cdf0ec5da3f0",
+    "hp3_5_evidence_index_sha256": "3c7d209298ea0f4444991ec296f9b644bbb42428f1d63d7b475468ce2d71a6e9",
+    "hp3_5_model_sha256": "c52993ff889a3dffe2f87f54bd226e652592018410a24ad36b70592c35219a29",
+    "hp3_model_sha256": "79a5c85d8f75ac89ef9903bd8ee54f9400d8754a8c4deb806ab6644dc5e43f38",
+    "hp4_0_model_sha256": "c20f13c6c5817435a686837a70f5a9bd5b6802b020dad0a47ea2f29713f1f684",
+    "hp4_1_model_sha256": "c908deb69c830418c971c9de355e0d319f1e1dd2e2e71c728bdc535434c9a31a"
+  },
+  "claim": {
+    "application_code_executed": false,
+    "classification": "HOST_NATIVE_UPDATE_TRANSACTION_ONLY",
+    "firmware_component_linked": true,
+    "host_firmware_ota_implemented": false,
+    "host_update_transaction_implemented": true,
+    "network_transport_implemented": false,
+    "partition_layout_changed": false,
+    "physical_execution": false,
+    "production_authenticator_implemented": false,
+    "production_cryptography": false,
+    "recovery_transaction_implemented": false,
+    "serial_driver_implemented": false,
+    "target_build_executed": false
+  },
+  "command_authority": {
+    "enabled_commands": [
+      "STATUS",
+      "BEGIN_UPDATE",
+      "WRITE_CHUNK",
+      "FINISH_UPDATE",
+      "ABORT",
+      "ACTIVATE_TRIAL"
+    ],
+    "enabled_mask": 95,
+    "hp4_3_commands_still_unsupported": [
+      "ENTER_RECOVERY",
+      "REBOOT"
+    ],
+    "request_binding": "every update command repeats the inactive slot, expected total bytes, and expected complete-artifact SHA-256",
+    "source": "UPDATE is derived inside wdc_admin; callers cannot select the HP1 source or priority"
+  },
+  "component": {
+    "firmware_link": "firmware/main/app_main.c calls wdc_admin_update_link_anchor before the application pthread is created",
+    "header": "firmware/components/wdc_admin/include/wdc_admin_update.h",
+    "hp1_gate": "wdc_control_admit_exclusive_update",
+    "source": "firmware/components/wdc_admin/wdc_admin_update.c"
+  },
+  "deferred": [
+    "HP4.3 host-only recovery entry, recovery-mode staging, abort, and reboot",
+    "HP4.4 adversarial host seal",
+    "UART or USB serial driver and physical-board execution",
+    "Wi-Fi, TLS, HTTP, MQTT, or another network transport",
+    "external ESP32 provider or Pulse-core change",
+    "RAX or another deployment envelope",
+    "host-firmware, bootloader, or partition-table OTA",
+    "redundant-versus-capacity partition redesign",
+    "production signing, authentication, provisioning, or key lifecycle",
+    "new physical-board result"
+  ],
+  "failure_authority": {
+    "abort_staging_on": [
+      "quiescence failure or malformed positive evidence",
+      "post-unload heap snapshot failure",
+      "HP1 exclusive admission denial",
+      "inactive-slot stage begin or write failure",
+      "stream idle, transaction deadline, or rate failure",
+      "complete artifact, expected hash, HP2 compatibility, security floor, or artifact-authority failure",
+      "replaceable administration verifier denial",
+      "TRIAL journal failure before a durable commit"
+    ],
+    "application_code_launched": false,
+    "boot_authority_before_trial_commit": "active slot, last-good slot, and exact last-confirmed record remain unchanged",
+    "failure_mode": "NORMAL",
+    "factory_host_partition_writable": false,
+    "inactive_slot_only": true
+  },
+  "pass": "HP4.2",
+  "resource_admission": {
+    "exclusive_required_internal_free_bytes": 163840,
+    "exclusive_update_working_bytes": 65536,
+    "fixed_control_reserve_bytes": 98304,
+    "largest_block_floor_bytes": 32768,
+    "required_largest_block_bytes": 98304,
+    "update_largest_allocation_bytes": 65536,
+    "user_controlled_sizes_or_priorities": false
+  },
+  "schema": "pulse.esp32.hp4_2-exclusive-update-transaction.v1",
+  "source_history": {
+    "current_firmware_file_count": 148,
+    "current_firmware_sha256": "77f4d2044776c6828e443486ee21199f95b4e1f34ae704c7323e901d51602eca",
+    "current_native_sdk_file_count": 1,
+    "current_native_sdk_sha256": "a7ceb397ab009950a1ebbdea60280f7944020a6523252b7de0d781e3e798bdd4",
+    "hp4_1_archive_manifest_file_count": 455,
+    "hp4_1_archive_manifest_payload_bytes": 3291858,
+    "hp4_1_archive_sha256": "7d36f89fab2ed62b30cdb14841dcb96ee736d7720ce2bcf692315f865afa82d5",
+    "hp4_1_firmware_file_count": 146,
+    "hp4_1_firmware_sha256": "4f7b56a99adfedfa57c1d5179ad5ca03e6f57dd258a73fa3a6f71f747973253c",
+    "hp4_1_native_sdk_file_count": 1,
+    "hp4_1_native_sdk_sha256": "a7ceb397ab009950a1ebbdea60280f7944020a6523252b7de0d781e3e798bdd4"
+  },
+  "state_machine": {
+    "engine_initial_mode": "NORMAL",
+    "legal_transitions": [
+      "NORMAL -> QUIESCE after accepted BEGIN_UPDATE",
+      "QUIESCE -> UPDATE after positive unload evidence, HP1 admission, and inactive-slot stage begin",
+      "QUIESCE -> NORMAL on failure",
+      "UPDATE -> NORMAL on abort or failure before durable TRIAL",
+      "UPDATE -> REBOOT_HANDOFF only after durable TRIAL read-back"
+    ],
+    "normal_to_update_direct": false,
+    "recovery_origin_supported_this_pass": false,
+    "reboot_handoff_owner": "terminal HP4 state returns the next boot to the existing HP3 selector"
+  },
+  "status": "IMPLEMENTED",
+  "streaming": {
+    "expected_total_must_match": true,
+    "maximum_chunk_bytes": 1024,
+    "rate_bytes_per_window": 65536,
+    "rate_chunks_per_window": 64,
+    "rate_window_ms": 1000,
+    "sequential_only": true,
+    "stream_idle_deadline_ms": 30000,
+    "transaction_deadline_ms": 900000,
+    "working_buffer_bytes": 65536
+  },
+  "verification": {
+    "activation_rechecks_authorization": true,
+    "activation_rechecks_replaceable_verifier": true,
+    "complete_stored_artifact_checks": [
+      "fixed artifact header and complete stored-artifact hash",
+      "inner bundle hash and bundle verification policy",
+      "HP2 running-host compatibility",
+      "security-version floor",
+      "artifact authority"
+    ],
+    "durable_trial_readback_required": true,
+    "metadata_commits_on_success": 3,
+    "native_case_count": 15,
+    "native_smoke": "tests/contract/hp4_2_admin_update_smoke.c",
+    "production_cryptography_claim": false,
+    "trial_authority": "wdc_app_slots_mark_trial and the existing two-record HP3 journal only"
+  }
+}

@@ -131,6 +131,63 @@ def make_module(include_shutdown: bool = True, init_status: int = 0, health_stat
     return b"\x00asm" + b"\x01\x00\x00\x00" + types + imports + funcs + memory + exports + code + data + host_meta
 
 
+def make_hx4_event_effect_module() -> bytes:
+    """Build the target-neutral HX4 handler used unchanged by S3 and C6."""
+    # Type 0: imported wdc_host_call(opcode, req_ptr, req_len, rsp_ptr, rsp_cap)
+    # Type 1: lifecycle init/health, type 2: on_event, type 3: shutdown.
+    types = section(1, vec([
+        functype([I32, I32, I32, I32, I32], [I32]),
+        functype([], [I32]),
+        functype([I32, I32], [I32]),
+        functype([I32], [I32]),
+    ]))
+    imports = section(2, vec([
+        name("wdc") + name("wdc_host_call") + b"\x00" + u32(0),
+    ]))
+    funcs = section(3, vec([u32(1), u32(2), u32(1), u32(3)]))
+    memory = section(5, vec([b"\x00" + u32(1)]))
+    exports = section(7, vec([
+        name("memory") + b"\x02" + u32(0),
+        name("wdc_module_init") + b"\x00" + u32(1),
+        name("wdc_module_on_event") + b"\x00" + u32(2),
+        name("wdc_module_health") + b"\x00" + u32(3),
+        name("wdc_module_shutdown") + b"\x00" + u32(4),
+    ]))
+
+    request_offset = 1024
+    response_offset = 2048
+    response_cap = 128
+    echo = b"hx4-echo"
+    # {38: 0x4543484f, 9: h'hx4-echo'}
+    request = (
+        b"\xa2\x18\x26\x1a\x45\x43\x48\x4f"
+        b"\x09" + bytes([0x40 + len(echo)]) + echo
+    )
+    on_event = (
+        b"\x41" + u32(0x0801) +
+        b"\x41" + u32(request_offset) +
+        b"\x41" + u32(len(request)) +
+        b"\x41" + u32(response_offset) +
+        b"\x41" + u32(response_cap) +
+        b"\x10" + u32(0)
+    )
+    bodies = [
+        code_body(b"\x00", b"\x41\x00"),
+        code_body(b"\x00", on_event),
+        code_body(b"\x00", b"\x41\x00"),
+        code_body(b"\x00", b"\x41\x00"),
+    ]
+    code = section(10, vec(bodies))
+    data_entry = b"\x00" + b"\x41" + u32(request_offset) + b"\x0b" + u32(len(request)) + request
+    data = section(11, vec([data_entry]))
+    host_meta = section(
+        0,
+        name("wdc.hx4.host_meta") +
+        b"event=test:tick;effect=test:echo;encoding=cbor;target=none",
+    )
+    return b"\x00asm" + b"\x01\x00\x00\x00" + types + imports + funcs + memory + exports + code + data + host_meta
+
+
 def c_array(name_: str, data: bytes) -> str:
     rows = []
     for i in range(0, len(data), 12):
@@ -150,11 +207,12 @@ def main() -> int:
         "wdc_static_init_trap_wasm": make_module(trap_init=True),
         "wdc_static_event_trap_wasm": make_module(trap_event=True),
         "wdc_static_event_fail_wasm": make_module(event_status=15),
+        "wdc_hx4_event_effect_wasm": make_hx4_event_effect_module(),
     }
     for n, data in fixtures.items():
         (VECTORS / f"{n}.wasm").write_bytes(data)
 
-    header = """#pragma once\n\n#include <stdint.h>\n\n#ifdef __cplusplus\nextern \"C\" {\n#endif\n\nextern const uint8_t wdc_static_hello_wasm[];\nextern const uint32_t wdc_static_hello_wasm_len;\nextern const uint8_t wdc_static_missing_shutdown_wasm[];\nextern const uint32_t wdc_static_missing_shutdown_wasm_len;\nextern const uint8_t wdc_static_init_fail_wasm[];\nextern const uint32_t wdc_static_init_fail_wasm_len;\nextern const uint8_t wdc_static_health_fail_wasm[];\nextern const uint32_t wdc_static_health_fail_wasm_len;\nextern const uint8_t wdc_static_init_trap_wasm[];\nextern const uint32_t wdc_static_init_trap_wasm_len;\nextern const uint8_t wdc_static_event_trap_wasm[];\nextern const uint32_t wdc_static_event_trap_wasm_len;\nextern const uint8_t wdc_static_event_fail_wasm[];\nextern const uint32_t wdc_static_event_fail_wasm_len;\n\n#ifdef __cplusplus\n}\n#endif\n"""
+    header = """#pragma once\n\n#include <stdint.h>\n\n#ifdef __cplusplus\nextern \"C\" {\n#endif\n\nextern const uint8_t wdc_static_hello_wasm[];\nextern const uint32_t wdc_static_hello_wasm_len;\nextern const uint8_t wdc_static_missing_shutdown_wasm[];\nextern const uint32_t wdc_static_missing_shutdown_wasm_len;\nextern const uint8_t wdc_static_init_fail_wasm[];\nextern const uint32_t wdc_static_init_fail_wasm_len;\nextern const uint8_t wdc_static_health_fail_wasm[];\nextern const uint32_t wdc_static_health_fail_wasm_len;\nextern const uint8_t wdc_static_init_trap_wasm[];\nextern const uint32_t wdc_static_init_trap_wasm_len;\nextern const uint8_t wdc_static_event_trap_wasm[];\nextern const uint32_t wdc_static_event_trap_wasm_len;\nextern const uint8_t wdc_static_event_fail_wasm[];\nextern const uint32_t wdc_static_event_fail_wasm_len;\nextern const uint8_t wdc_hx4_event_effect_wasm[];\nextern const uint32_t wdc_hx4_event_effect_wasm_len;\n\n#ifdef __cplusplus\n}\n#endif\n"""
     (INC / "wdc_static_wasm.h").write_text(header, encoding="utf-8")
 
     src = "#include \"wdc_static_wasm.h\"\n\n"

@@ -1,0 +1,70 @@
+{
+  "bounds": {
+    "completion_storm_iterations": 128,
+    "hardware_effect_timeout_ms": 1000,
+    "hardware_queue_accepted_events": 128,
+    "hardware_queue_rounds": 8,
+    "host_pressure_reservation_bytes": 262144,
+    "native_fault_cycles": 64,
+    "queue_capacity": 16,
+    "queue_rounds": 64,
+    "wasm_pressure_reservation_bytes": 4194304,
+    "wasm_trap_cycles": 64
+  },
+  "excluded": [
+    "RAX blobs or provider composition",
+    "networking, BLE, GPIO, I2C, storage, or other peripheral expansion",
+    "multi-extension scheduling or hot replacement",
+    "HX6 or HX7 behavior"
+  ],
+  "hardware_campaigns": [
+    {
+      "board": "AITRIP ESP32-S3-DevKitC-1 N8R2",
+      "build_target": "hx5b-s3-aitrip-build",
+      "evaluate_target": "hx5b-s3-aitrip-evaluate",
+      "pressure_marker": "PULSE_HX45_PRESSURE",
+      "target": "esp32s3"
+    },
+    {
+      "board": "Seeed Studio XIAO ESP32C6",
+      "build_target": "hx5b-c6-xiao-build",
+      "evaluate_target": "hx5b-c6-xiao-evaluate",
+      "pressure_marker": "PULSE_HX45_PRESSURE",
+      "target": "esp32c6"
+    }
+  ],
+  "pass": "HX5b",
+  "phase": "PRESSURE_HOST_SEALED",
+  "required_workloads": [
+    {
+      "id": "queue-saturation-recovery",
+      "required_outcome": "every full queue rejects the newest event, drains in order, and accepts the next round"
+    },
+    {
+      "id": "deadline-late-completion-storm",
+      "required_outcome": "every timed-out completion is stale and the single bounded slot is reusable"
+    },
+    {
+      "id": "duplicate-completion-recovery-storm",
+      "required_outcome": "every second completion is duplicate and the following correlation succeeds"
+    },
+    {
+      "id": "bounded-latency-distribution",
+      "required_outcome": "the complete bounded sample emits ordered min, p50, p95, and maximum values"
+    },
+    {
+      "id": "repeated-wasm-trap-recovery",
+      "required_outcome": "each real unreachable trap is followed by a successful common-Wasm execution"
+    },
+    {
+      "id": "repeated-native-fault-reset-cycles",
+      "required_outcome": "each native fault latches reset-required and a simulated reset restores a clean fixture"
+    },
+    {
+      "id": "pressure-reservation-released",
+      "required_outcome": "the explicit host pressure reservation is released with zero tracked retained bytes"
+    }
+  ],
+  "schema": "pulse.esp32.hx5b-extension-pressure-seal.v1",
+  "scope": "sustained bounded pressure, recovery, measurement, and opt-in named-board reruns"
+}

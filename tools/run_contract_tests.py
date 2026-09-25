@@ -18,8 +18,32 @@ COMMANDS = [
     [sys.executable, "-B", "tools/check_r3.py"],
     [sys.executable, "-B", "-m", "unittest", "tests.contract.test_r3_5_verification"],
     [sys.executable, "-B", "-m", "unittest", "tests.contract.test_r3_5_deps"],
+    [sys.executable, "-B", "-m", "unittest", "tests.contract.test_idf_family_matrix", "-v"],
     [sys.executable, "-B", "tools/check_r4.py"],
     [sys.executable, "-B", "tools/check_r5.py"],
+    [sys.executable, "-B", "-m", "unittest", "tests.contract.test_hx0_extension_contract", "-v"],
+    [sys.executable, "-B", "-m", "unittest", "tests.contract.test_hx1_elf_loader", "-v"],
+    [sys.executable, "-B", "-m", "unittest", "tests.contract.test_hx2_extension_admission", "-v"],
+    [sys.executable, "-B", "-m", "unittest", "tests.contract.test_hx3_extension_lifecycle", "-v"],
+    [sys.executable, "-B", "-m", "unittest", "tests.contract.test_hx4_extension_event_effect", "-v"],
+    [sys.executable, "-B", "-m", "unittest", "tests.contract.test_hx45_extension_adversarial", "-v"],
+    [sys.executable, "-B", "-m", "unittest", "tests.contract.test_hx5a_extension_faults", "-v"],
+    [sys.executable, "-B", "-m", "unittest", "tests.contract.test_hx5b_extension_pressure", "-v"],
+    [sys.executable, "-B", "-m", "unittest", "tests.contract.test_hp0_evidence_reconciliation", "-v"],
+    [sys.executable, "-B", "-m", "unittest", "tests.contract.test_hp1_host_kernel_resource_authority", "-v"],
+    [sys.executable, "-B", "-m", "unittest", "tests.contract.test_hp2_host_build_coherence", "-v"],
+    [sys.executable, "-B", "-m", "unittest", "tests.contract.test_hp3_application_slots", "-v"],
+    [sys.executable, "-B", "-m", "unittest", "tests.contract.test_hp3_5_slot_adversarial", "-v"],
+    [sys.executable, "-B", "-m", "unittest", "tests.contract.test_hp4_0_administration_contract", "-v"],
+    [sys.executable, "-B", "-m", "unittest", "tests.contract.test_hp4_1_administration_core", "-v"],
+    [sys.executable, "-B", "-m", "unittest", "tests.contract.test_hp4_2_admin_update", "-v"],
+    [sys.executable, "-B", "-m", "unittest", "tests.contract.test_hp4_3_admin_recovery", "-v"],
+    [sys.executable, "-B", "-m", "unittest", "tests.contract.test_hp4_4_admin_adversarial", "-v"],
+    [sys.executable, "-B", "-m", "unittest", "tests.contract.test_hp5_host_network", "-v"],
+    [sys.executable, "-B", "-m", "unittest", "tests.contract.test_hp5_5_network_hardware", "-v"],
+    [sys.executable, "-B", "-m", "unittest", "tests.contract.test_hx45_s3_aitrip_hardware", "-v"],
+    [sys.executable, "-B", "-m", "unittest", "tests.contract.test_hx45_c6_xiao_hardware", "-v"],
+    [sys.executable, "-B", "-m", "unittest", "tests.contract.test_release_packaging", "-v"],
     [sys.executable, "-B", "tools/check_r6.py"],
     [sys.executable, "-B", "tools/check_r7.py"],
     [sys.executable, "-B", "tools/check_r8.py"],
@@ -45,7 +69,7 @@ def main() -> int:
         )
         if result.returncode != 0:
             return result.returncode
-    print("All split contract tests passed through R9")
+    print("All split contract tests passed through R9, HX5b, HP0, HP1, HP2, HP3, HP3.5, HP4.0, HP4.1, HP4.2, HP4.3, HP4.4, HP5, and HP5.5 readiness")
     return 0
 
 

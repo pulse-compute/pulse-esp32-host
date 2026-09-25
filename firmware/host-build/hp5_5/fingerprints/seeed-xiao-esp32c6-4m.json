@@ -1,0 +1,39 @@
+{
+  "build_lock_sha256": "9114579dc7e213dcec95effaaa1fb400961d93e6a2c9fb204cb3bc40112b2053",
+  "compatibility_sha256": "84a6d91ba29069d3de10643fc0e8d6cf5507f38991dae051ad5fd27d05a3b59d",
+  "compatibility_surface": {
+    "abi_authority_sha256": "104753f70693b895afcf33e5a897f09ffec8f63988414c1784f56b8a7fa26f1b",
+    "board_id": "seeed-xiao-esp32c6-4m",
+    "capabilities": [
+      "pulse.application-slots.v1",
+      "pulse.event-effect.v1",
+      "pulse.native-refinement.v1",
+      "pulse.wasm-application.v1"
+    ],
+    "capability_mask": 15,
+    "control_resource_profile": "esp32c6-no-psram-minimum-v1",
+    "flash_bytes": 4194304,
+    "format_version": 1,
+    "host_abi": {
+      "major": 1,
+      "minor": 0
+    },
+    "host_profile_id": "esp32c6-portable-slots-hp5-network-v1",
+    "native_extension_abi_sha256": "e92aaae33b4016f5e3d1ac41f34fac0b19569c7f0bbabba6ce3d4e2604f6e023",
+    "psram_bytes": 0,
+    "resource_authority_sha256": "cc3afbfc4ff7d4a7b5b5aca6ae0b5953a34065501bbfea36d4580a2d193fd84d",
+    "resources": {
+      "exclusive_update_working_bytes": 65536,
+      "fixed_control_reserve_bytes": 98304,
+      "largest_block_floor_bytes": 32768,
+      "maximum_application_internal_bytes": 131072,
+      "maximum_target_optimized_bytes": 0,
+      "maximum_transition_scratch_bytes": 16384,
+      "target_optimized_floor_bytes": 0
+    },
+    "target": "esp32c6"
+  },
+  "fingerprint_sha256": "6fe1b5728634e2eed8564e8cc9fb0d0d32f72c7fe8c04240035f71dacbd504ee",
+  "fingerprint_version": 1,
+  "schema": "pulse.esp32.running-host-fingerprint.v1"
+}

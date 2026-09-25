@@ -1,0 +1,142 @@
+{
+  "board": {
+    "board_id": "aitrip-esp32s3-devkitc-1-n8r2",
+    "flash_bytes": 8388608,
+    "psram_bytes": 2097152,
+    "target": "esp32s3"
+  },
+  "catalog_sha256": "365cc7e646083c487ce390e2af857bd388f37f40c91a8f19a0a98d0884f2ee90",
+  "compatibility_sha256": "7ccd2aa1930c91b12dc172f2a525bd364b741e06b8a7bf7662aa7765985228d4",
+  "compatibility_surface": {
+    "abi_authority_sha256": "104753f70693b895afcf33e5a897f09ffec8f63988414c1784f56b8a7fa26f1b",
+    "board_id": "aitrip-esp32s3-devkitc-1-n8r2",
+    "capabilities": [
+      "pulse.application-slots.v1",
+      "pulse.event-effect.v1",
+      "pulse.native-refinement.v1",
+      "pulse.wasm-application.v1"
+    ],
+    "capability_mask": 15,
+    "control_resource_profile": "esp32s3-psram-optimization-v1",
+    "flash_bytes": 8388608,
+    "format_version": 1,
+    "host_abi": {
+      "major": 1,
+      "minor": 0
+    },
+    "host_profile_id": "esp32s3-psram-slots-hp5-network-v1",
+    "native_extension_abi_sha256": "e92aaae33b4016f5e3d1ac41f34fac0b19569c7f0bbabba6ce3d4e2604f6e023",
+    "psram_bytes": 2097152,
+    "resource_authority_sha256": "cc3afbfc4ff7d4a7b5b5aca6ae0b5953a34065501bbfea36d4580a2d193fd84d",
+    "resources": {
+      "exclusive_update_working_bytes": 65536,
+      "fixed_control_reserve_bytes": 98304,
+      "largest_block_floor_bytes": 32768,
+      "maximum_application_internal_bytes": 131072,
+      "maximum_target_optimized_bytes": 1048576,
+      "maximum_transition_scratch_bytes": 16384,
+      "target_optimized_floor_bytes": 131072
+    },
+    "target": "esp32s3"
+  },
+  "component_manifest_hash": "e7603bfb01831451363912d529587666b87f5a8565a12bd084cfa4449dbf1f27",
+  "dependency_lock_sha256": "5c672b327f9f4fc8742ca78c5cdca76170cb78a18857e98b497ac0f0bbee0e4c",
+  "derived_source_exclusions": [
+    "firmware/components/wdc_host_identity/wdc_host_fingerprint_generated.c"
+  ],
+  "environment": {
+    "container_image": "espressif/idf@sha256:8d1846f61ff8db00ba6530501f90bf43604d923072a616c806fef8e85a88ed82",
+    "id": "idf-5.4.4",
+    "platform": "linux/amd64",
+    "source_commit": "296b6eab9445fd720e71aecab961e2d3fbca9944",
+    "version": "v5.4.4"
+  },
+  "host_plan_sha256": "c8f716a0075e6c949d46235d172a734e82e1945a90392892deab1eff7175b21a",
+  "host_profile_id": "esp32s3-psram-slots-hp5-network-v1",
+  "inputs": [
+    {
+      "path": "firmware/boards/aitrip-esp32s3-devkitc-1-n8r2/board.json",
+      "sha256": "543f0e4bad0083d7992c090132615888282ec47b4790278c59881952c484db25",
+      "size": 418
+    },
+    {
+      "path": "firmware/boards/aitrip-esp32s3-devkitc-1-n8r2/partitions.csv",
+      "sha256": "402d1b72c259f8ca23b5e9fc11a8badc02976ad71684510a2487e6e830e803a0",
+      "size": 477
+    },
+    {
+      "path": "firmware/boards/aitrip-esp32s3-devkitc-1-n8r2/sdkconfig.defaults",
+      "sha256": "fdb4a80fbae806e29f1ba72281f15f5b27184d0f34b065e81636eae81153648d",
+      "size": 1012
+    },
+    {
+      "path": "firmware/components/wdc_abi/include/wdc_abi.h",
+      "sha256": "104753f70693b895afcf33e5a897f09ffec8f63988414c1784f56b8a7fa26f1b",
+      "size": 14310
+    },
+    {
+      "path": "firmware/host-build/hp5_5/catalog.json",
+      "sha256": "f4c426946c8a1359d3fd9527528c315009d8588df11c68efb6269edbc48d9fad",
+      "size": 2443
+    },
+    {
+      "path": "firmware/host-profiles/esp32s3-psram-slots-hp5-network-v1.json",
+      "sha256": "c45d41d8c023baacce692b761d0c79277329d2e7d342cca701bde09fd8630acc",
+      "size": 1182
+    },
+    {
+      "path": "firmware/locks/host-extension/idf-5.4.4/esp32s3/dependencies.lock",
+      "sha256": "5c672b327f9f4fc8742ca78c5cdca76170cb78a18857e98b497ac0f0bbee0e4c",
+      "size": 1491
+    },
+    {
+      "path": "native-sdk/c/include/pulse_extension.h",
+      "sha256": "e92aaae33b4016f5e3d1ac41f34fac0b19569c7f0bbabba6ce3d4e2604f6e023",
+      "size": 9695
+    },
+    {
+      "path": "specs/PULSE-ESP32-006-host-kernel-resource-authority.json",
+      "sha256": "cc3afbfc4ff7d4a7b5b5aca6ae0b5953a34065501bbfea36d4580a2d193fd84d",
+      "size": 6018
+    }
+  ],
+  "lock_version": 1,
+  "resolved_components": [
+    {
+      "component_hash": "351350613ceafba240b761b4ea991e0f231ac7a9f59a9ee901f751bddc0bb18f",
+      "name": "espressif/cmake_utilities",
+      "version": "0.5.3"
+    },
+    {
+      "component_hash": "9f7f6efa06e0847adeba6c9910c4308f33aae7d35ba0cc36c0850105c45e9874",
+      "name": "espressif/elf_loader",
+      "version": "1.3.2"
+    },
+    {
+      "component_hash": "04f25aad2896b5e906397a061d35cce560609bebd3913a4be7e365ecbf2dd9d6",
+      "name": "espressif/wasm-micro-runtime",
+      "version": "2.4.0~1"
+    }
+  ],
+  "schema": "pulse.esp32.host-build-lock.v1",
+  "source_trees": [
+    {
+      "file_count": 127,
+      "path": "firmware/components",
+      "sha256": "c34a96f7d08055a54659fead1925da1ee7a776fb016c05309e9d11edb821a4a9",
+      "size": 833724
+    },
+    {
+      "file_count": 4,
+      "path": "firmware/main",
+      "sha256": "cc7995885e99cf4617706d6ea7c39e7c294c10ef745c1a64d21e331f2b1a001d",
+      "size": 35761
+    },
+    {
+      "file_count": 1,
+      "path": "native-sdk",
+      "sha256": "0ea57f587414023099f7853f87452113ead3df9f365b8733ad535a62309ff838",
+      "size": 9695
+    }
+  ]
+}

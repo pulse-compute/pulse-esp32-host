@@ -1,0 +1,88 @@
+{
+  "schema": "pulse.esp32.host-build-coherence-seal.v1",
+  "pass": "HP2",
+  "phase": "HOST_PROFILE_BUILD_COHERENCE_LOCK_FINGERPRINT",
+  "artifact_separation": [
+    "board_identity",
+    "host_capability_resource_profile",
+    "normalized_target_intent",
+    "host_build_plan",
+    "exact_host_build_lock",
+    "running_host_fingerprint"
+  ],
+  "invariants": {
+    "build_coherence": "one build lock resolves one exact IDF, tool, target, configuration, partition, source, and component graph",
+    "existing_lock_replay": "never_resolves_or_silently_upgrades",
+    "new_lock_resolution": "explicit_operation_only",
+    "compatible_running_host": "APP_ONLY_DEPLOYMENT",
+    "incompatible_running_host": "HOST_BUILD_PLAN_REQUIRED",
+    "application_launch": "only_after_fingerprint_compatibility_and_hp1_heap_admission",
+    "pulse_core_vocabulary_exclusions": [
+      "ESP-IDF",
+      "partition",
+      "PSRAM",
+      "loader"
+    ]
+  },
+  "supported_environment": {
+    "lane": "idf-5.4.4",
+    "idf_version": "v5.4.4",
+    "idf_source_commit": "296b6eab9445fd720e71aecab961e2d3fbca9944",
+    "platform": "linux/amd64",
+    "container_image": "espressif/idf@sha256:8d1846f61ff8db00ba6530501f90bf43604d923072a616c806fef8e85a88ed82",
+    "components": {
+      "espressif/cmake_utilities": {
+        "version": "0.5.3",
+        "component_hash": "351350613ceafba240b761b4ea991e0f231ac7a9f59a9ee901f751bddc0bb18f"
+      },
+      "espressif/elf_loader": {
+        "version": "1.3.2",
+        "component_hash": "9f7f6efa06e0847adeba6c9910c4308f33aae7d35ba0cc36c0850105c45e9874"
+      },
+      "espressif/wasm-micro-runtime": {
+        "version": "2.4.0~1",
+        "component_hash": "04f25aad2896b5e906397a061d35cce560609bebd3913a4be7e365ecbf2dd9d6"
+      }
+    }
+  },
+  "realizations": {
+    "aitrip-esp32s3-devkitc-1-n8r2": {
+      "target": "esp32s3",
+      "host_profile": "esp32s3-psram-slots-v1",
+      "control_resource_profile": "esp32s3-psram-optimization-v1",
+      "build_lock_sha256": "0c76890decd638e04a649242ff22379cdc30557a7e7bd6ac43c63ceefb2f2af2",
+      "fingerprint_sha256": "757beea1ef291d71e0d4417b7a6538de5e72973d9a7d177bf37f58c0b3e792c8"
+    },
+    "seeed-xiao-esp32c6-4m": {
+      "target": "esp32c6",
+      "host_profile": "esp32c6-portable-slots-v1",
+      "control_resource_profile": "esp32c6-no-psram-minimum-v1",
+      "build_lock_sha256": "a7f1f535589451ab35a37c04a567f8a6462d20ecc49b523799301455d5b4463d",
+      "fingerprint_sha256": "1d80440a212bb71dd074a6cc5a1690a748ffc02de92cfbe6ba3703ecd03f1f69"
+    }
+  },
+  "preserved_authorities": {
+    "hp1_resource_authority_sha256": "cc3afbfc4ff7d4a7b5b5aca6ae0b5953a34065501bbfea36d4580a2d193fd84d",
+    "native_extension_abi_sha256": "e92aaae33b4016f5e3d1ac41f34fac0b19569c7f0bbabba6ce3d4e2604f6e023",
+    "common_wasm_sha256": "ef8b21a4b7a423923c09f5e38fc626ff7d1cda856c4935db7f191695a333e5c4",
+    "hp0_terminal_result": "DUAL_ISA_PRESSURE_OBSERVED"
+  },
+  "synthetic_seal": {
+    "board_identities": 2,
+    "host_profiles": 2,
+    "build_plans": 2,
+    "exact_build_locks": 2,
+    "running_fingerprints": 2,
+    "prelaunch_cases": 8,
+    "negative_cases": 8,
+    "application_code_launched": false,
+    "aggregate": "HOST_BUILD_COHERENCE_PROVEN"
+  },
+  "claim_boundary": {
+    "runtime": "HOST_EXECUTED_SYNTHETIC_ONLY",
+    "hardware": "NOT_RUN",
+    "host_firmware_build": "NOT_RUN_LOCK_RESOLUTION_ONLY",
+    "external_provider": "NOT_IMPLEMENTED",
+    "pulse_core": "UNCHANGED"
+  }
+}

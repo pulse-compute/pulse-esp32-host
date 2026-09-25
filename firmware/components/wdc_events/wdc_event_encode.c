@@ -12,12 +12,15 @@ int32_t wdc_event_encode_cbor(const WdcEvent *event, uint8_t *out, uint32_t out_
     wdc_cbor_builder_init(&b, out, out_cap);
     const bool has_resource = event->resource_id != WDC_EVENT_RESOURCE_NONE;
     const bool has_payload = event->payload_len != 0u;
-    const uint32_t pairs = 4u + (has_resource ? 1u : 0u) + (has_payload ? 1u : 0u);
+    const bool has_causation = event->causation_id != 0u;
+    const uint32_t pairs = 4u + (has_resource ? 1u : 0u) +
+                           (has_payload ? 1u : 0u) + (has_causation ? 1u : 0u);
     int32_t status = wdc_cbor_begin_map(&b, pairs);
     if (status == WDC_OK) { status = wdc_cbor_put_key_u32(&b, WDC_CBOR_KEY_ABI_VERSION, WDC_R4_EVENT_ABI_VERSION); }
     if (status == WDC_OK) { status = wdc_cbor_put_key_u32(&b, WDC_CBOR_KEY_EVENT_TYPE, event->event_type); }
     if (status == WDC_OK) { status = wdc_cbor_put_key_u32(&b, WDC_CBOR_KEY_EVENT_ID, event->event_id); }
     if (status == WDC_OK) { status = wdc_cbor_put_key_u64(&b, WDC_CBOR_KEY_TIMESTAMP_MS, event->timestamp_ms); }
+    if (status == WDC_OK && has_causation) { status = wdc_cbor_put_key_u64(&b, WDC_CBOR_KEY_CAUSATION_ID, event->causation_id); }
     if (status == WDC_OK && has_resource) { status = wdc_cbor_put_key_u32(&b, WDC_CBOR_KEY_RESOURCE_ID, event->resource_id); }
     if (status == WDC_OK && has_payload) { status = wdc_cbor_put_key_bytes(&b, WDC_CBOR_KEY_PAYLOAD, event->payload, event->payload_len); }
     if (status != WDC_OK) { return status; }
@@ -46,6 +49,8 @@ int32_t wdc_event_decode_envelope(const uint8_t *buf, uint32_t len, WdcEvent *ou
     if (status != WDC_OK) { return WDC_ERR_BAD_ENCODING; }
     status = wdc_cbor_map_find_u64(buf, len, WDC_CBOR_KEY_TIMESTAMP_MS, &out_event->timestamp_ms);
     if (status != WDC_OK) { return WDC_ERR_BAD_ENCODING; }
+    status = wdc_cbor_map_find_u64(buf, len, WDC_CBOR_KEY_CAUSATION_ID, &out_event->causation_id);
+    if (status != WDC_OK && status != WDC_ERR_NOT_AVAILABLE) { return WDC_ERR_BAD_ENCODING; }
     uint32_t resource_id = 0u;
     status = wdc_cbor_map_find_u32(buf, len, WDC_CBOR_KEY_RESOURCE_ID, &resource_id);
     if (status == WDC_OK) { out_event->resource_id = resource_id; }

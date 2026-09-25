@@ -1,0 +1,82 @@
+{
+  "accepted_runs": {
+    "esp32c6": {
+      "board": "Seeed Studio XIAO ESP32C6",
+      "build_report_sha256": "52daa8f74a59f91570a4ca790c868b6296e89829c03357eeba49701d1ef072ea",
+      "evaluation_report_json_sha256": "5ba86a8355efae492b05663d73bba36310bd478c0717ccdaee8f80c03c699fc6",
+      "evaluation_report_markdown_sha256": "58d52eec56764dcf606ef1089b4fc25dd083b66f8d566dcc5116268a63f11cb9",
+      "native_extension_sha256": "60185086c35486f3b57c8ea1ef9f975499996f207050af37754a3c1c6ff02fb2",
+      "run_id": "hx5b-xiao-c6-001",
+      "runtime_result": "NAMED_BOARD_OBSERVED",
+      "serial_log_sha256": "dcd19341ae889aade784557800afbe844af6d8343c66d6a61bfcbd91b4f81976",
+      "status": "PASS",
+      "target": "esp32c6"
+    },
+    "esp32s3": {
+      "board": "AITRIP ESP32-S3-DevKitC-1 N8R2",
+      "build_report_sha256": "b7aa68b995fc72def2f8067538378ad9e1884e387d058daf3d8e9d226997a234",
+      "evaluation_report_json_sha256": "8a3bc822b514f2e23393d9c41bba4d2a6bb96723b71990381ebf9b691d9396e3",
+      "evaluation_report_markdown_sha256": "ecc83b8ecbc77cb31f2b8637724b3faddeec8e5f608ac67264b73f49043cd2d5",
+      "native_extension_sha256": "7c7c5465de5dc408b4fc79e8bdd9956234099817596d987c7950126ca2921daf",
+      "run_id": "hx5b-aitrip-001",
+      "runtime_result": "NAMED_BOARD_OBSERVED",
+      "serial_log_sha256": "105ec5e36e0b9555c98190fbf47aa0b1d94d16c45eb245f424ee3eaf3af5fa13",
+      "status": "PASS",
+      "target": "esp32s3"
+    }
+  },
+  "common_wasm": {
+    "sha256": "ef8b21a4b7a423923c09f5e38fc626ff7d1cda856c4935db7f191695a333e5c4",
+    "size": 306
+  },
+  "dual_qualifier": {
+    "aggregate": "DUAL_ISA_PRESSURE_OBSERVED",
+    "hardware_result": "DUAL_NAMED_BOARD_OBSERVED",
+    "qualification_report_json_sha256": "06e9718ea562fbdf0a016e753b4ebfbd7f9780023b3129ab929ad384d20243f8",
+    "qualification_report_markdown_sha256": "eec35e27dbe7c688f79266eee68241aedc9bfc964e672b95f0f49a4af2a16730",
+    "run_id": "hx5b-dual-001",
+    "status": "PASS"
+  },
+  "handoff_authority": {
+    "internal_revision": "v2",
+    "name": "pulse-esp32-host-hx0-hx5b-closure-and-next-phase-handoff-v1.md",
+    "sha256": "dd70e6b5fb5c24ead872c76339a9a054b8120bd3a34468aacf1613148d49e7c9",
+    "size": 42257
+  },
+  "hp0": {
+    "excluded_input_paths": [
+      {
+        "path": "hardware/hx5b-aitrip-001/project/reports",
+        "reason": "Post-build nested workspace output containing a duplicate C6 run; the primary C6 root is verified and packaged independently."
+      }
+    ],
+    "pass": "HP0",
+    "status": "PASS",
+    "supersedes": [
+      "original HX6 provider composition",
+      "original HX7 reconciliation/composition sequence",
+      "MQTT as the immediate next contract proof",
+      "GPIO as the immediate next vertical slice"
+    ]
+  },
+  "input_evidence_archive": {
+    "name": "reports.zip",
+    "sha256": "43faf9866044ca24ed76efc056f498d9ea42fb82cfcfb74fbbc86a3f3850872c",
+    "size": 160765931
+  },
+  "pressure_model": {
+    "path": "specs/PULSE-ESP32-005b-extension-pressure-seal.json",
+    "sha256": "1cc8c636724b38747e5f7c87342f40d00cbf8b7c0946c3c09d83f6cf940a2377"
+  },
+  "schema": "pulse.esp32.hp0-hardware-evidence-index.v1",
+  "source_authority": {
+    "file_count": 368,
+    "library_version": 17,
+    "name": "pulse-esp32-host-hx5b-source-v17.zip",
+    "sha256": "e12962aafe1d3529fe32f27aa161218096660c38c8fadda9c2cad1f8b7c06e0f",
+    "size": 759832,
+    "source_tree_sha256": "f430099caeeda6ed143d08e15f1a40de3867b987b648ff6e5993b0670af16bf4"
+  },
+  "status": "PASS",
+  "terminal_result": "DUAL_ISA_PRESSURE_OBSERVED"
+}

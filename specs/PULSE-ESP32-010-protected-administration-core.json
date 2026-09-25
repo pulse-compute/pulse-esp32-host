@@ -1,0 +1,222 @@
+{
+  "aggregate": "HOST_PROTECTED_ADMINISTRATION_CORE_IMPLEMENTED",
+  "authority_bindings": {
+    "hp1_model_sha256": "cc3afbfc4ff7d4a7b5b5aca6ae0b5953a34065501bbfea36d4580a2d193fd84d",
+    "hp2_model_sha256": "f9dc94e2ea4bf45af14787671c9fd2ddfb71c888874c6ea8e722cdf0ec5da3f0",
+    "hp3_5_evidence_index_sha256": "3c7d209298ea0f4444991ec296f9b644bbb42428f1d63d7b475468ce2d71a6e9",
+    "hp3_5_model_sha256": "c52993ff889a3dffe2f87f54bd226e652592018410a24ad36b70592c35219a29",
+    "hp3_model_sha256": "79a5c85d8f75ac89ef9903bd8ee54f9400d8754a8c4deb806ab6644dc5e43f38",
+    "hp4_0_model_sha256": "c20f13c6c5817435a686837a70f5a9bd5b6802b020dad0a47ea2f29713f1f684"
+  },
+  "claim": {
+    "application_code_executed": false,
+    "artifact_verifier_interface_implemented": true,
+    "classification": "HOST_NATIVE_CORE_ONLY",
+    "firmware_component_linked": true,
+    "host_update_transaction_implemented": false,
+    "network_transport_implemented": false,
+    "physical_execution": false,
+    "production_authenticator_implemented": false,
+    "production_cryptography": false,
+    "recovery_transaction_implemented": false,
+    "serial_driver_implemented": false,
+    "serial_normalizer_implemented": true
+  },
+  "command_authority": {
+    "accepted_lifecycle": [
+      "RECEIVED",
+      "ACCEPTED",
+      "IN_PROGRESS",
+      "TERMINAL"
+    ],
+    "atomic_acceptance_order": [
+      "validate fixed request and payload bounds",
+      "validate live session, deadline, replay, command, privilege, state, and one-command capacity",
+      "derive the HP1 control source from command and host mode",
+      "submit to the partitioned HP1 lane",
+      "copy request and payload into fixed host storage and advance the replay high-water"
+    ],
+    "default_hp4_1_enabled_commands": [
+      "STATUS"
+    ],
+    "future_commands_fail_preaccept_as": "UNSUPPORTED until the owning HP4.2 or HP4.3 transaction engine explicitly enables them",
+    "frozen_command_vocabulary": [
+      "STATUS",
+      "BEGIN_UPDATE",
+      "WRITE_CHUNK",
+      "FINISH_UPDATE",
+      "ABORT",
+      "ENTER_RECOVERY",
+      "ACTIVATE_TRIAL",
+      "REBOOT"
+    ],
+    "maximum_inflight": 1,
+    "payload_copy_bytes": 1024,
+    "preaccept_rejections": [
+      "BAD_FRAME",
+      "BOUNDS",
+      "UNAUTHORIZED",
+      "EXPIRED",
+      "STALE_REPLAY",
+      "OUT_OF_ORDER",
+      "RATE_LIMITED",
+      "BUSY",
+      "UNSUPPORTED",
+      "WRONG_STATE"
+    ],
+    "source_mapping": {
+      "administration": [
+        "STATUS"
+      ],
+      "recovery": [
+        "ENTER_RECOVERY",
+        "REBOOT",
+        "ABORT while in RECOVERY"
+      ],
+      "update": [
+        "BEGIN_UPDATE",
+        "WRITE_CHUNK",
+        "FINISH_UPDATE",
+        "ACTIVATE_TRIAL",
+        "ABORT outside RECOVERY"
+      ]
+    },
+    "source_selection": "derived inside wdc_admin; request and transport records contain no control-source or priority field"
+  },
+  "component": {
+    "cmake": "firmware/components/wdc_admin/CMakeLists.txt",
+    "firmware_link": "firmware/main/app_main.c calls a side-effect-free anchor before the application pthread is created",
+    "header": "firmware/components/wdc_admin/include/wdc_admin.h",
+    "main_dependency": "firmware/main/CMakeLists.txt",
+    "serial_source": "firmware/components/wdc_admin/wdc_admin_serial.c",
+    "source": "firmware/components/wdc_admin/wdc_admin.c"
+  },
+  "deferred": [
+    "HP4.2 application quiescence, exclusive update admission, inactive-slot streaming, artifact verification decision, and TRIAL commit",
+    "HP4.3 host-only recovery transaction and recovery-mode command enablement",
+    "HP4.4 adversarial host seal",
+    "UART or USB serial driver and physical-board execution",
+    "Wi-Fi, TLS, HTTP, MQTT, or another network transport",
+    "external ESP32 provider or Pulse-core change",
+    "RAX or another deployment envelope",
+    "host-firmware, bootloader, or partition-table OTA",
+    "redundant-versus-capacity partition redesign",
+    "production signing, authentication, provisioning, or key lifecycle",
+    "new physical-board result"
+  ],
+  "fixed_storage": {
+    "audit_bytes": 5120,
+    "audit_records": 32,
+    "core_budget_bytes": 8192,
+    "hp1_administration_reserve_bytes": 12288,
+    "maximum_payload_bytes": 1024,
+    "maximum_status_response_bytes": 1024,
+    "native_host_observed_combined_bytes": 9784,
+    "serial_budget_bytes": 2304,
+    "static_assertion": "sizeof(WdcAdminCore) + sizeof(WdcAdminSerialAdapter) <= 12288",
+    "storage_rule": "all session, command, payload, response, serial, terminal, rate, and audit state is embedded; no allocator is called"
+  },
+  "interfaces": {
+    "artifact_verifier": {
+      "decision_fields": [
+        "complete_artifact_valid",
+        "host_compatible",
+        "security_floor_valid",
+        "artifact_authority_valid"
+      ],
+      "fail_closed_before_hp4_2": true,
+      "production_cryptography_claim": false,
+      "replaceable_callback": "WdcAdminArtifactVerifyFn"
+    },
+    "authorizer": {
+      "attended_serial_required": true,
+      "challenge_deadline_ms": 10000,
+      "opaque_proof_maximum_bytes": 1024,
+      "producer_rule": "only WdcAdminAuthorizeFn may emit WdcAdminAuthenticatedEntry",
+      "replaceable_callback": "WdcAdminAuthorizeFn",
+      "transport_cannot_emit_entry": true
+    }
+  },
+  "negative_surface": {
+    "application_components_with_no_wdc_admin_dependency": [
+      "wdc_app",
+      "wdc_events",
+      "wdc_extension",
+      "wdc_net"
+    ],
+    "guest_abi_changed": false,
+    "native_extension_abi_changed": false,
+    "no_application_route_event_effect_or_native_refinement_entry": true,
+    "no_dynamic_allocation_tokens": [
+      "malloc(",
+      "calloc(",
+      "realloc(",
+      "free("
+    ]
+  },
+  "pass": "HP4.1",
+  "rate_and_replay": {
+    "authorization_backoff_ms": 30000,
+    "authorization_failure_limit": 8,
+    "authorization_window_ms": 60000,
+    "capacity_and_replay_commit_together": true,
+    "first_sequence": 1,
+    "rejected_commands_advance_sequence": false,
+    "session_capacity": 1,
+    "session_idle_ms": 30000,
+    "session_lifetime_ms": 900000,
+    "strictly_consecutive": true,
+    "volatile_authorization_epoch_high_water": true
+  },
+  "record_layouts": {
+    "audit_bytes": 160,
+    "authenticated_entry_bytes": 128,
+    "request_bytes": 112,
+    "terminal_bytes": 64
+  },
+  "schema": "pulse.esp32.hp4_1-protected-administration-core.v1",
+  "serial_normalizer": {
+    "authority": "normalization only; it cannot begin or finish authorization",
+    "body": "one 112-byte request followed by zero to 1024 payload bytes",
+    "byte_order": "LITTLE_ENDIAN",
+    "frame_maximum_bytes_including_prefix": 2048,
+    "length_prefix_bytes": 4,
+    "partial_feed_supported": true,
+    "transport": "SERIAL_PHYSICAL_V1"
+  },
+  "source_history": {
+    "current_firmware_file_count": 146,
+    "current_firmware_sha256": "4f7b56a99adfedfa57c1d5179ad5ca03e6f57dd258a73fa3a6f71f747973253c",
+    "current_native_sdk_file_count": 1,
+    "current_native_sdk_sha256": "a7ceb397ab009950a1ebbdea60280f7944020a6523252b7de0d781e3e798bdd4",
+    "hp4_0_archive_manifest_file_count": 445,
+    "hp4_0_archive_manifest_payload_bytes": 3122110,
+    "hp4_0_archive_sha256": "e2387f4974b2425267b29bf8285c387ca5e7d9d4fbfc6f3e75796001d6058722",
+    "hp4_0_firmware_file_count": 141,
+    "hp4_0_firmware_sha256": "c7b4341e00911b3b26b4d9b8abcd831af4abdf7754503a79298e86aa2b9d2c31",
+    "hp4_0_native_sdk_file_count": 1,
+    "hp4_0_native_sdk_sha256": "a7ceb397ab009950a1ebbdea60280f7944020a6523252b7de0d781e3e798bdd4"
+  },
+  "status": "IMPLEMENTED",
+  "terminal_and_audit": {
+    "audit_overflow": "OVERWRITE_OLDEST_LATCH_LOSS_COUNT",
+    "audit_secret_fields": false,
+    "duplicate_terminal_status": "WDC_ERR_INVALID_STATE",
+    "exactly_one_terminal_per_accepted_command": true,
+    "response_consumption": "terminal and optional bounded status response are consumed together exactly once",
+    "terminal_results": [
+      "SUCCEEDED",
+      "FAILED",
+      "TIMED_OUT",
+      "CANCELLED",
+      "ABORTED",
+      "REBOOT_HANDOFF"
+    ]
+  },
+  "verification": {
+    "native_case_count": 14,
+    "native_smoke": "tests/contract/hp4_1_admin_core_smoke.c",
+    "physical_result_created": false,
+    "target_build_executed": false
+  }
+}

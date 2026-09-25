@@ -19,6 +19,7 @@ typedef struct WdcEvent {
     uint32_t event_id;
     uint32_t resource_id;
     uint64_t timestamp_ms;
+    uint64_t causation_id;
     uint16_t payload_len;
     uint8_t payload[WDC_EVENT_PAYLOAD_MAX];
 } WdcEvent;

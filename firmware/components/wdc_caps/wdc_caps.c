@@ -424,7 +424,8 @@ static int32_t request_payload_len(uint32_t opcode, const uint8_t *request, uint
     switch (opcode) {
     case WDC_OP_CONFIG_SET:
     case WDC_OP_MQTT_PUBLISH:
-    case WDC_OP_HTTP_REQUEST: {
+    case WDC_OP_HTTP_REQUEST:
+    case WDC_OP_HTTP_RESPOND: {
         WdcCborBytes bytes = {0};
         int32_t status = wdc_cbor_map_find_bytes(request, request_len, WDC_CBOR_KEY_DATA, &bytes);
         if (status == WDC_ERR_NOT_AVAILABLE) {
@@ -682,6 +683,13 @@ int32_t wdc_caps_authorize_host_call(void *ctx,
     case WDC_OP_NET_STATUS:
     case WDC_OP_TIMER_SET:
     case WDC_OP_TIMER_CANCEL:
+    case WDC_OP_EFFECT_INVOKE:
+        /*
+         * Extension operation identity and payload bounds are authorized by
+         * the sealed extension registry bridge.  This case only permits the
+         * already-installed guarded authorizer to delegate to that bridge;
+         * the dispatcher still fails closed when no authorizer is installed.
+         */
         decision = WDC_OK;
         break;
     case WDC_OP_GPIO_GET:
@@ -741,7 +749,8 @@ int32_t wdc_caps_authorize_host_call(void *ctx,
     }
     case WDC_OP_MQTT_PUBLISH:
     case WDC_OP_MQTT_SUBSCRIBE:
-    case WDC_OP_HTTP_REQUEST: {
+    case WDC_OP_HTTP_REQUEST:
+    case WDC_OP_HTTP_RESPOND: {
         uint32_t resource_id = 0u;
         int32_t status = wdc_cbor_map_find_u32(request, request_len, WDC_CBOR_KEY_RESOURCE_ID, &resource_id);
         if (status != WDC_OK) {
@@ -764,7 +773,7 @@ int32_t wdc_caps_authorize_host_call(void *ctx,
         if (decision == WDC_OK) {
             decision = enforce_payload_limit(opcode, request, request_len, &s_last_audit);
         }
-        if (decision == WDC_OK) {
+        if (decision == WDC_OK && opcode != WDC_OP_HTTP_RESPOND) {
             int32_t cap_index = find_resource_capability_index(authorizer->capability_set, WDC_RESOURCE_KIND_NETWORK, op, resource_id);
             decision = enforce_rate_limit(authorizer, cap_index, &s_last_audit);
         }

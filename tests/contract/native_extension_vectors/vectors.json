@@ -1,0 +1,148 @@
+{
+  "descriptor_metadata_file": "valid-esp32s3.elf",
+  "descriptor_rejections": [
+    {
+      "expected_error": "descriptor size",
+      "file": "invalid-descriptor-wrong-size.bin",
+      "name": "wrong-size"
+    },
+    {
+      "expected_error": "identity disagreement",
+      "file": "invalid-descriptor-identity-disagreement.bin",
+      "name": "identity-disagreement"
+    },
+    {
+      "expected_error": "hash disagreement",
+      "file": "invalid-descriptor-hash-mismatch.bin",
+      "name": "hash-mismatch"
+    },
+    {
+      "expected_error": "reserved fields",
+      "file": "invalid-descriptor-nonzero-reserved.bin",
+      "name": "nonzero-reserved"
+    },
+    {
+      "expected_error": "missing lifecycle function",
+      "file": "invalid-descriptor-missing-lifecycle.bin",
+      "name": "missing-lifecycle"
+    }
+  ],
+  "pre_execution_rejections": [
+    {
+      "expected_error": "does not match esp32s3",
+      "expected_target": "esp32s3",
+      "file": "invalid-wrong-machine.elf",
+      "name": "wrong-machine"
+    },
+    {
+      "expected_error": "metadata target identity",
+      "expected_target": "esp32s3",
+      "file": "invalid-wrong-target-id.elf",
+      "name": "wrong-target-id"
+    },
+    {
+      "expected_error": "metadata format version",
+      "expected_target": "esp32s3",
+      "file": "invalid-unknown-metadata-version.elf",
+      "name": "unknown-metadata-version"
+    },
+    {
+      "expected_error": ".pulse_ext_meta size",
+      "expected_target": "esp32s3",
+      "file": "invalid-truncated-metadata.elf",
+      "name": "truncated-metadata"
+    },
+    {
+      "expected_error": "range exceeds file bounds",
+      "expected_target": "esp32s3",
+      "file": "invalid-metadata-outside-bounds.elf",
+      "name": "metadata-outside-bounds"
+    },
+    {
+      "expected_error": "duplicate event identity",
+      "expected_target": "esp32s3",
+      "file": "invalid-duplicate-event-id.elf",
+      "name": "duplicate-event-id"
+    },
+    {
+      "expected_error": "duplicate operation identity",
+      "expected_target": "esp32s3",
+      "file": "invalid-duplicate-operation-id.elf",
+      "name": "duplicate-operation-id"
+    },
+    {
+      "expected_error": "host ABI major",
+      "expected_target": "esp32s3",
+      "file": "invalid-incompatible-abi-major.elf",
+      "name": "incompatible-abi-major"
+    },
+    {
+      "expected_error": "host ABI minor",
+      "expected_target": "esp32s3",
+      "file": "invalid-unsupported-required-abi-minor.elf",
+      "name": "unsupported-required-abi-minor"
+    },
+    {
+      "expected_error": "metadata descriptor size",
+      "expected_target": "esp32s3",
+      "file": "invalid-wrong-descriptor-size-metadata.elf",
+      "name": "wrong-descriptor-size-metadata"
+    },
+    {
+      "expected_error": "metadata reserved fields",
+      "expected_target": "esp32s3",
+      "file": "invalid-nonzero-metadata-reserved.elf",
+      "name": "nonzero-metadata-reserved"
+    },
+    {
+      "expected_error": "task stack",
+      "expected_target": "esp32s3",
+      "file": "invalid-budget-above-profile.elf",
+      "name": "budget-above-profile"
+    },
+    {
+      "expected_error": "artifact hash mismatch",
+      "expected_target": "esp32s3",
+      "file": "invalid-artifact-hash-mismatch.elf",
+      "name": "artifact-hash-mismatch"
+    },
+    {
+      "expected_error": "unexpected",
+      "expected_target": "esp32s3",
+      "file": "invalid-unexpected-import.elf",
+      "name": "unexpected-import"
+    },
+    {
+      "expected_error": "unresolved",
+      "expected_target": "esp32s3",
+      "file": "invalid-unresolved-import.elf",
+      "name": "unresolved-import"
+    }
+  ],
+  "proof": {
+    "descriptor_rejection_lifecycle_calls": 0,
+    "pre_execution_lifecycle_calls": 0
+  },
+  "registry_rejections": [
+    {
+      "expected_error": "duplicate extension identity",
+      "files": [
+        "valid-descriptor.bin",
+        "valid-descriptor.bin"
+      ],
+      "name": "duplicate-extension-identity"
+    }
+  ],
+  "schema": "pulse.esp32.hx2-admission-vectors.v1",
+  "valid": [
+    {
+      "expected_target": "esp32s3",
+      "file": "valid-esp32s3.elf"
+    },
+    {
+      "expected_target": "esp32c6",
+      "file": "valid-esp32c6.elf"
+    }
+  ],
+  "valid_descriptor": "valid-descriptor.bin"
+}

@@ -110,29 +110,22 @@ const char *wdc_bundle_slot_state_name(WdcSlotState state)
     switch (state) {
     case WDC_SLOT_EMPTY:
         return "empty";
-    case WDC_SLOT_DOWNLOADED:
-        return "downloaded";
+    case WDC_SLOT_STAGED:
+        return "staged";
     case WDC_SLOT_VERIFIED:
         return "verified";
-    case WDC_SLOT_PENDING:
-        return "pending";
-    case WDC_SLOT_RUNNING_PENDING:
-        return "running_pending";
+    case WDC_SLOT_TRIAL:
+        return "trial";
+    case WDC_SLOT_TRIAL_RUNNING:
+        return "trial_running";
     case WDC_SLOT_CONFIRMED:
         return "confirmed";
-    case WDC_SLOT_FAILED:
-        return "failed";
+    case WDC_SLOT_REJECTED:
+        return "rejected";
     default:
         return "unknown";
     }
 }
-
-typedef struct WdcSha256Ctx {
-    uint8_t data[64];
-    uint32_t datalen;
-    uint64_t bitlen;
-    uint32_t state[8];
-} WdcSha256Ctx;
 
 static const uint32_t s_k[64] = {
     0x428a2f98u, 0x71374491u, 0xb5c0fbcfu, 0xe9b5dba5u, 0x3956c25bu, 0x59f111f1u, 0x923f82a4u, 0xab1c5ed5u,
@@ -150,7 +143,7 @@ static uint32_t rotr(uint32_t a, uint32_t b)
     return (a >> b) | (a << (32u - b));
 }
 
-static void sha256_transform(WdcSha256Ctx *ctx, const uint8_t data[64])
+static void sha256_transform(WdcSha256Context *ctx, const uint8_t data[64])
 {
     uint32_t m[64];
     for (uint32_t i = 0u, j = 0u; i < 16u; ++i, j += 4u) {
@@ -198,8 +191,11 @@ static void sha256_transform(WdcSha256Ctx *ctx, const uint8_t data[64])
     ctx->state[7] += h;
 }
 
-static void sha256_init(WdcSha256Ctx *ctx)
+void wdc_sha256_init(WdcSha256Context *ctx)
 {
+    if (ctx == NULL) {
+        return;
+    }
     memset(ctx, 0, sizeof(*ctx));
     ctx->state[0] = 0x6a09e667u;
     ctx->state[1] = 0xbb67ae85u;
@@ -211,9 +207,9 @@ static void sha256_init(WdcSha256Ctx *ctx)
     ctx->state[7] = 0x5be0cd19u;
 }
 
-static void sha256_update(WdcSha256Ctx *ctx, const uint8_t *data, uint32_t len)
+void wdc_sha256_update(WdcSha256Context *ctx, const uint8_t *data, uint32_t len)
 {
-    if (data == NULL || len == 0u) {
+    if (ctx == NULL || data == NULL || len == 0u) {
         return;
     }
     for (uint32_t i = 0u; i < len; ++i) {
@@ -227,8 +223,11 @@ static void sha256_update(WdcSha256Ctx *ctx, const uint8_t *data, uint32_t len)
     }
 }
 
-static void sha256_final(WdcSha256Ctx *ctx, uint8_t hash[32])
+void wdc_sha256_final(WdcSha256Context *ctx, uint8_t hash[WDC_BUNDLE_SHA256_BYTES])
 {
+    if (ctx == NULL || hash == NULL) {
+        return;
+    }
     uint32_t i = ctx->datalen;
 
     if (ctx->datalen < 56u) {
@@ -270,10 +269,10 @@ static void sha256_final(WdcSha256Ctx *ctx, uint8_t hash[32])
 
 void wdc_sha256(const uint8_t *data, uint32_t len, uint8_t out_hash[WDC_BUNDLE_SHA256_BYTES])
 {
-    WdcSha256Ctx ctx;
-    sha256_init(&ctx);
-    sha256_update(&ctx, data, len);
-    sha256_final(&ctx, out_hash);
+    WdcSha256Context ctx;
+    wdc_sha256_init(&ctx);
+    wdc_sha256_update(&ctx, data, len);
+    wdc_sha256_final(&ctx, out_hash);
 }
 
 void wdc_hmac_sha256(const uint8_t *key,
@@ -304,18 +303,18 @@ void wdc_hmac_sha256(const uint8_t *key,
     }
 
     uint8_t inner[32];
-    WdcSha256Ctx ctx;
-    sha256_init(&ctx);
-    sha256_update(&ctx, ipad, sizeof(ipad));
-    sha256_update(&ctx, part0, part0_len);
-    sha256_update(&ctx, part1, part1_len);
-    sha256_update(&ctx, part2, part2_len);
-    sha256_final(&ctx, inner);
+    WdcSha256Context ctx;
+    wdc_sha256_init(&ctx);
+    wdc_sha256_update(&ctx, ipad, sizeof(ipad));
+    wdc_sha256_update(&ctx, part0, part0_len);
+    wdc_sha256_update(&ctx, part1, part1_len);
+    wdc_sha256_update(&ctx, part2, part2_len);
+    wdc_sha256_final(&ctx, inner);
 
-    sha256_init(&ctx);
-    sha256_update(&ctx, opad, sizeof(opad));
-    sha256_update(&ctx, inner, sizeof(inner));
-    sha256_final(&ctx, out_hash);
+    wdc_sha256_init(&ctx);
+    wdc_sha256_update(&ctx, opad, sizeof(opad));
+    wdc_sha256_update(&ctx, inner, sizeof(inner));
+    wdc_sha256_final(&ctx, out_hash);
 }
 
 void wdc_bundle_sha256_hex(const uint8_t hash[WDC_BUNDLE_SHA256_BYTES], char out_hex[WDC_BUNDLE_SHA256_HEX_BYTES])
@@ -1117,7 +1116,8 @@ uint32_t wdc_bundle_metadata_crc32(const WdcBundleMetadataV1 *metadata)
     if (metadata == NULL) {
         return 0u;
     }
-    WdcBundleMetadataV1 copy = *metadata;
+    WdcBundleMetadataV1 copy;
+    memcpy(&copy, metadata, sizeof(copy));
     copy.metadata_crc = 0u;
     return crc32_update(0u, (const uint8_t *)&copy, (uint32_t)sizeof(copy));
 }

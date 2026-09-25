@@ -1,0 +1,6 @@
+# Compile-only classic ESP32 realization. This is not a deployable board profile.
+CONFIG_PARTITION_TABLE_CUSTOM=y
+CONFIG_PARTITION_TABLE_CUSTOM_FILENAME="partitions/compile-16m-no-psram.csv"
+CONFIG_ESPTOOLPY_FLASHSIZE_16MB=y
+# CONFIG_SPIRAM is not set
+# CONFIG_SPIRAM_USE_MALLOC is not set

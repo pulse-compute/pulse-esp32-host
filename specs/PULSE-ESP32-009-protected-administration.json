@@ -1,0 +1,426 @@
+{
+  "administrative_identity": {
+    "artifact_identity": "HP3 fixed artifact header plus complete stored-artifact SHA-256",
+    "command_identity": "authorization_epoch + session_nonce + command_sequence",
+    "host_identity": "validated HP2 running-host fingerprint plus boot-scoped channel binding",
+    "principal_identity": "authorizer-issued 32-byte SHA-256 identity; never supplied as authority by a transport",
+    "request_id_role": "diagnostic correlation only; never replay or authorization authority",
+    "session_identity": "authorization_epoch + nonzero session_nonce",
+    "secret_logging": "credentials, challenges, authenticators, keys, and artifact bytes are never audit fields"
+  },
+  "audit": {
+    "overflow_policy": "OVERWRITE_OLDEST_LATCH_LOSS_COUNT",
+    "record_bytes": 160,
+    "record_layout": [
+      {"field": "struct_size", "offset": 0, "size": 4},
+      {"field": "version_major", "offset": 4, "size": 2},
+      {"field": "version_minor", "offset": 6, "size": 2},
+      {"field": "event", "offset": 8, "size": 4},
+      {"field": "outcome", "offset": 12, "size": 4},
+      {"field": "transport_kind", "offset": 16, "size": 4},
+      {"field": "command", "offset": 20, "size": 4},
+      {"field": "from_state", "offset": 24, "size": 4},
+      {"field": "to_state", "offset": 28, "size": 4},
+      {"field": "terminal_result", "offset": 32, "size": 4},
+      {"field": "status", "offset": 36, "size": 4},
+      {"field": "authorization_epoch", "offset": 40, "size": 8},
+      {"field": "session_nonce", "offset": 48, "size": 8},
+      {"field": "command_sequence", "offset": 56, "size": 8},
+      {"field": "request_id", "offset": 64, "size": 8},
+      {"field": "monotonic_ms", "offset": 72, "size": 8},
+      {"field": "principal_sha256", "offset": 80, "size": 32},
+      {"field": "artifact_sha256", "offset": 112, "size": 32},
+      {"field": "slot", "offset": 144, "size": 4},
+      {"field": "flags", "offset": 148, "size": 4},
+      {"field": "reserved", "offset": 152, "size": 8}
+    ],
+    "ring_records": 32,
+    "required_events": [
+      "AUTHORIZATION",
+      "REPLAY_DECISION",
+      "COMMAND_ACCEPTANCE",
+      "QUIESCE",
+      "STAGING",
+      "VERIFICATION",
+      "SLOT_TRANSITION",
+      "TERMINAL_RESULT",
+      "RECOVERY_ENTRY",
+      "REBOOT_HANDOFF"
+    ],
+    "reserved_rule": "all reserved bytes and unknown flags are zero",
+    "storage": "fixed host-owned ring; application pressure cannot allocate or consume it",
+    "version": "1.0"
+  },
+  "authority_bindings": {
+    "hp1": {
+      "administration": {
+        "control_source": "ADMINISTRATION",
+        "freertos_priority": 11,
+        "queue_capacity": 8,
+        "stack_bytes": 6144
+      },
+      "application_cannot_select_source_or_priority": true,
+      "exclusive_update_working_bytes": 65536,
+      "fixed_control_reserve_bytes": 98304,
+      "model_sha256": "cc3afbfc4ff7d4a7b5b5aca6ae0b5953a34065501bbfea36d4580a2d193fd84d",
+      "recovery": {
+        "control_source": "RECOVERY",
+        "freertos_priority": 13,
+        "queue_capacity": 8,
+        "stack_bytes": 4096
+      },
+      "update_control_source": "UPDATE",
+      "update_largest_allocation_bytes": 65536
+    },
+    "hp2": {
+      "compatibility_authority": "validated running-host fingerprint and wdc_host_prelaunch_check",
+      "model_sha256": "f9dc94e2ea4bf45af14787671c9fd2ddfb71c888874c6ea8e722cdf0ec5da3f0",
+      "security_policy": "candidate requirements must match the exact running semantic surface before TRIAL"
+    },
+    "hp3": {
+      "active_and_last_confirmed_slots_are_never_staging_targets": true,
+      "factory_host_writable": false,
+      "mark_trial_authority": "wdc_app_slots_mark_trial after complete verification only",
+      "model_sha256": "79a5c85d8f75ac89ef9903bd8ee54f9400d8754a8c4deb806ab6644dc5e43f38",
+      "slot_model_unchanged": true,
+      "staging_authority": "wdc_app_slots_stage_begin/write/finish/abort against the inactive slot",
+      "trial_and_boot_authority": "existing HP3 journal and boot selector only"
+    },
+    "hp3_5": {
+      "evidence_index_sha256": "3c7d209298ea0f4444991ec296f9b644bbb42428f1d63d7b475468ce2d71a6e9",
+      "host_aggregate": "HOST_SLOT_ADVERSARIAL_POWER_LOSS_SEALED",
+      "model_sha256": "c52993ff889a3dffe2f87f54bd226e652592018410a24ad36b70592c35219a29",
+      "physical_aggregate": "DUAL_NAMED_BOARD_SAFE_SUBSET_OBSERVED",
+      "physical_result_relabelled": false
+    }
+  },
+  "claim": {
+    "aggregate": "HOST_ADMINISTRATION_CONTRACT_FROZEN",
+    "application_code_executed": false,
+    "classification": "HOST_MODEL_ONLY",
+    "firmware_implemented": false,
+    "network_transport_implemented": false,
+    "physical_execution": false,
+    "production_cryptography": false,
+    "serial_driver_implemented": false
+  },
+  "command_contract": {
+    "accepted_lifecycle": ["RECEIVED", "ACCEPTED", "IN_PROGRESS", "TERMINAL"],
+    "commands": [
+      "STATUS",
+      "BEGIN_UPDATE",
+      "WRITE_CHUNK",
+      "FINISH_UPDATE",
+      "ABORT",
+      "ENTER_RECOVERY",
+      "ACTIVATE_TRIAL",
+      "REBOOT"
+    ],
+    "exactly_one_terminal_per_accepted_command": true,
+    "preaccept_rejections": [
+      "BAD_FRAME",
+      "BOUNDS",
+      "UNAUTHORIZED",
+      "EXPIRED",
+      "STALE_REPLAY",
+      "OUT_OF_ORDER",
+      "RATE_LIMITED",
+      "BUSY",
+      "UNSUPPORTED",
+      "WRONG_STATE"
+    ],
+    "preaccept_rule": "a rejected command receives no ticket, owns no completion slot, and cannot mutate replay, session, mode, slot, boot, or security-floor state",
+    "terminal_record_bytes": 64,
+    "terminal_record_layout": [
+      {"field": "struct_size", "offset": 0, "size": 4},
+      {"field": "version_major", "offset": 4, "size": 2},
+      {"field": "version_minor", "offset": 6, "size": 2},
+      {"field": "result", "offset": 8, "size": 4},
+      {"field": "status", "offset": 12, "size": 4},
+      {"field": "request_id", "offset": 16, "size": 8},
+      {"field": "session_nonce", "offset": 24, "size": 8},
+      {"field": "command_sequence", "offset": 32, "size": 8},
+      {"field": "bytes_received", "offset": 40, "size": 4},
+      {"field": "metadata_commits", "offset": 44, "size": 4},
+      {"field": "final_state", "offset": 48, "size": 4},
+      {"field": "slot", "offset": 52, "size": 4},
+      {"field": "flags", "offset": 56, "size": 4},
+      {"field": "reserved", "offset": 60, "size": 4}
+    ],
+    "terminal_results": [
+      "SUCCEEDED",
+      "FAILED",
+      "TIMED_OUT",
+      "CANCELLED",
+      "ABORTED",
+      "REBOOT_HANDOFF"
+    ],
+    "terminal_rule": "the first terminal write wins; duplicate or late terminal writes are rejected without changing the retained result"
+  },
+  "deferred": [
+    "HP4.1 protected session, authorization, replay, rate-limit, command, terminal, and audit implementation",
+    "HP4.2 exclusive update transaction implementation",
+    "HP4.3 host-only recovery implementation",
+    "HP4.4 adversarial host seal",
+    "Wi-Fi, TLS, HTTP, MQTT, or other network transport",
+    "external ESP32 provider or Pulse-core change",
+    "RAX or another deployment envelope",
+    "host-firmware, bootloader, or partition-table OTA",
+    "redundant-versus-capacity partition redesign",
+    "production signing or key-lifecycle claim",
+    "new physical-board result"
+  ],
+  "pass": "HP4.0",
+  "request_bounds": {
+    "audit_ring_records": 32,
+    "authorization_backoff_ms": 30000,
+    "authorization_failures_per_window": 8,
+    "authorization_window_ms": 60000,
+    "challenge_deadline_ms": 10000,
+    "command_default_deadline_ms": 30000,
+    "maximum_frame_bytes": 2048,
+    "maximum_inflight_commands_per_session": 1,
+    "maximum_normalized_request_bytes": 112,
+    "maximum_payload_bytes": 1024,
+    "maximum_sessions": 1,
+    "maximum_status_response_bytes": 1024,
+    "maximum_stream_chunk_bytes": 1024,
+    "quiesce_deadline_ms": 10000,
+    "reboot_handoff_deadline_ms": 5000,
+    "session_idle_deadline_ms": 30000,
+    "session_lifetime_ms": 900000,
+    "stream_idle_deadline_ms": 30000,
+    "update_transaction_deadline_ms": 900000
+  },
+  "request_record": {
+    "bytes": 112,
+    "layout": [
+      {"field": "struct_size", "offset": 0, "size": 4},
+      {"field": "version_major", "offset": 4, "size": 2},
+      {"field": "version_minor", "offset": 6, "size": 2},
+      {"field": "command", "offset": 8, "size": 4},
+      {"field": "flags", "offset": 12, "size": 4},
+      {"field": "payload_bytes", "offset": 16, "size": 4},
+      {"field": "slot", "offset": 20, "size": 4},
+      {"field": "expected_total_bytes", "offset": 24, "size": 4},
+      {"field": "reserved0", "offset": 28, "size": 4},
+      {"field": "request_id", "offset": 32, "size": 8},
+      {"field": "deadline_ms", "offset": 40, "size": 8},
+      {"field": "authorization_epoch", "offset": 48, "size": 8},
+      {"field": "session_nonce", "offset": 56, "size": 8},
+      {"field": "command_sequence", "offset": 64, "size": 8},
+      {"field": "artifact_sha256", "offset": 72, "size": 32},
+      {"field": "reserved1", "offset": 104, "size": 8}
+    ],
+    "payload_ownership": "borrowed through admission only; an accepted command copies required bytes into fixed host-owned storage",
+    "reserved_rule": "all reserved bytes and unknown flags are zero",
+    "version": "1.0"
+  },
+  "schema": "pulse.esp32.hp4_0-protected-administration-contract.v1",
+  "serial_transport": {
+    "authority": "transport bytes and adapter metadata are never authorization authority",
+    "concrete_transport": "SERIAL_PHYSICAL_V1",
+    "entry_rule": "the platform must establish an attended physical/serial entry condition before the replaceable authorizer may issue an authenticated-entry record",
+    "first_implementation_pass": "HP4.1",
+    "framing": "bounded length-prefixed binary frames normalized into the transport-neutral request record",
+    "future_transport": "HP5 may add AUTHENTICATED_EXTERNAL_V1 behind the same authenticated-entry interface",
+    "maximum_frame_bytes": 2048,
+    "production_rule": "serial policy remains subject to the existing production security profile and may be disabled; presence alone is not production cryptography",
+    "transport_kinds": ["SERIAL_PHYSICAL_V1", "AUTHENTICATED_EXTERNAL_V1_RESERVED"]
+  },
+  "session_contract": {
+    "authenticated_entry_bytes": 128,
+    "authenticated_entry_layout": [
+      {"field": "struct_size", "offset": 0, "size": 4},
+      {"field": "version_major", "offset": 4, "size": 2},
+      {"field": "version_minor", "offset": 6, "size": 2},
+      {"field": "transport_kind", "offset": 8, "size": 4},
+      {"field": "authorization_method", "offset": 12, "size": 4},
+      {"field": "privilege_mask", "offset": 16, "size": 4},
+      {"field": "flags", "offset": 20, "size": 4},
+      {"field": "authorization_epoch", "offset": 24, "size": 8},
+      {"field": "issued_monotonic_ms", "offset": 32, "size": 8},
+      {"field": "expires_monotonic_ms", "offset": 40, "size": 8},
+      {"field": "session_nonce", "offset": 48, "size": 8},
+      {"field": "principal_sha256", "offset": 56, "size": 32},
+      {"field": "channel_binding_sha256", "offset": 88, "size": 32},
+      {"field": "reserved", "offset": 120, "size": 8}
+    ],
+    "authorization_methods": ["LOCAL_PHYSICAL", "REPLACEABLE_AUTHENTICATOR"],
+    "authorization_states": [
+      "UNAUTHENTICATED",
+      "CHALLENGE_ISSUED",
+      "AUTHORIZED",
+      "EXPIRED",
+      "REVOKED",
+      "CLOSED"
+    ],
+    "authorizer_interface": "replaceable host-private verifier emits the fixed authenticated-entry record; no transport may self-assert it",
+    "privileges": ["STATUS", "UPDATE", "RECOVERY", "REBOOT"],
+    "replay": {
+      "atomic_acceptance": "capacity admission, replay reservation, and accepted-command ownership commit together",
+      "cross_boot": "boot-scoped channel binding invalidates prior serial sessions; a future external authorizer must persist its own authorization-epoch high-water",
+      "first_sequence": 1,
+      "gaps": "OUT_OF_ORDER before acceptance",
+      "older_authorization_epoch": "STALE_REPLAY before acceptance",
+      "rejected_request_effect": "authorization, bounds, rate, and capacity rejection do not advance the sequence high-water",
+      "same_or_lower_sequence": "STALE_REPLAY before acceptance",
+      "sequence_rule": "strictly consecutive within one authorized session"
+    },
+    "reserved_rule": "all reserved bytes and unknown flags are zero",
+    "storage": "one fixed host-owned session and one accepted command; no allocation and no application-owned capacity",
+    "version": "1.0"
+  },
+  "source_reconciliation": {
+    "accepted_base_archive_sha256": "928b74de36f5d25d48caecb08a3412314b02f0aece7c804046b5b7942466d00f",
+    "accepted_base_manifest_file_count": 440,
+    "accepted_base_manifest_payload_bytes": 3033334,
+    "classification": "AUTHORIZED_HP3_5_CLOSURE_SEAL_SUCCESSOR",
+    "firmware_source_file_count": 141,
+    "firmware_source_sha256": "c7b4341e00911b3b26b4d9b8abcd831af4abdf7754503a79298e86aa2b9d2c31",
+    "native_sdk_file_count": 1,
+    "native_sdk_sha256": "a7ceb397ab009950a1ebbdea60280f7944020a6523252b7de0d781e3e798bdd4",
+    "predecessor_v8_archive_sha256": "7be285c47d268721e4a419074d8a551a7db59968bed8738a8ab7ee0c979c4a9a",
+    "predecessor_v8_manifest_file_count": 438,
+    "predecessor_v8_manifest_payload_bytes": 3022784,
+    "rule": "the accepted successor adds the immutable HP3.5 closure indexes and terminal closure text; it does not relabel or replace the sealed firmware, native SDK, campaign, board reports, serial logs, or dual evaluation"
+  },
+  "state_machine": {
+    "durable_authority": "HP3 journal only; HP4 mode and intent never shadow slot or boot authority",
+    "initialization": {
+      "hp3_no_viable_application": "RECOVERY",
+      "hp3_viable_application": "NORMAL",
+      "reset_during_quiesce_or_update": "discard volatile HP4 mode and let HP3 journal selection establish NORMAL or RECOVERY"
+    },
+    "intent_values": ["NONE", "UPDATE", "RECOVERY"],
+    "legal_transitions": [
+      {
+        "control_source": "ADMINISTRATION",
+        "from": "NORMAL",
+        "guards": ["session_authorized", "replay_fresh", "deadline_live", "hp1_administration_work_accepted"],
+        "id": "normal.begin_update",
+        "intent_after": "UPDATE",
+        "to": "QUIESCE",
+        "trigger": "BEGIN_UPDATE"
+      },
+      {
+        "control_source": "RECOVERY",
+        "from": "NORMAL",
+        "guards": ["session_authorized", "replay_fresh", "deadline_live", "recovery_privilege", "hp1_recovery_work_accepted"],
+        "id": "normal.begin_recovery",
+        "intent_after": "RECOVERY",
+        "to": "QUIESCE",
+        "trigger": "ENTER_RECOVERY"
+      },
+      {
+        "control_source": "RECOVERY",
+        "from": "NORMAL",
+        "guards": ["hp3_no_viable_application", "recovery_reserve_intact"],
+        "id": "normal.no_viable_application",
+        "intent_after": "RECOVERY",
+        "to": "RECOVERY",
+        "trigger": "NO_VIABLE_APPLICATION"
+      },
+      {
+        "control_source": "UPDATE",
+        "from": "QUIESCE",
+        "guards": ["intent_is_update", "guest_quiesced", "guest_unloaded", "native_refinements_quiesced", "native_refinements_unloaded", "exclusive_update_admitted", "last_confirmed_preserved"],
+        "id": "quiesce.update_ready",
+        "intent_after": "UPDATE",
+        "to": "UPDATE",
+        "trigger": "QUIESCE_COMPLETE"
+      },
+      {
+        "control_source": "RECOVERY",
+        "from": "QUIESCE",
+        "guards": ["intent_is_recovery", "guest_quiesced", "guest_unloaded", "native_refinements_quiesced", "native_refinements_unloaded", "recovery_reserve_intact", "boot_authority_unchanged"],
+        "id": "quiesce.recovery_ready",
+        "intent_after": "RECOVERY",
+        "to": "RECOVERY",
+        "trigger": "QUIESCE_COMPLETE"
+      },
+      {
+        "control_source": "ADMINISTRATION",
+        "from": "QUIESCE",
+        "guards": ["quiesce_stopped", "staging_not_started", "last_confirmed_viable", "boot_authority_unchanged"],
+        "id": "quiesce.abort_to_normal",
+        "intent_after": "NONE",
+        "to": "NORMAL",
+        "trigger": "ABORT_OR_TIMEOUT"
+      },
+      {
+        "control_source": "RECOVERY",
+        "from": "QUIESCE",
+        "guards": ["quiesce_stopped", "hp3_no_viable_application", "boot_authority_unchanged", "recovery_reserve_intact"],
+        "id": "quiesce.abort_to_recovery",
+        "intent_after": "RECOVERY",
+        "to": "RECOVERY",
+        "trigger": "ABORT_OR_TIMEOUT"
+      },
+      {
+        "control_source": "UPDATE",
+        "from": "UPDATE",
+        "guards": ["inactive_slot_only", "complete_artifact_verified", "authorization_current", "hp2_host_compatible", "security_floor_valid", "artifact_authority_valid", "trial_journal_commit_durable", "last_confirmed_preserved"],
+        "id": "update.trial_committed",
+        "intent_after": "NONE",
+        "to": "REBOOT_HANDOFF",
+        "trigger": "TRIAL_COMMITTED"
+      },
+      {
+        "control_source": "UPDATE",
+        "from": "UPDATE",
+        "guards": ["staging_aborted", "last_confirmed_viable", "boot_authority_unchanged", "last_confirmed_preserved"],
+        "id": "update.abort_to_normal",
+        "intent_after": "NONE",
+        "to": "NORMAL",
+        "trigger": "ABORT_OR_FAILURE"
+      },
+      {
+        "control_source": "RECOVERY",
+        "from": "UPDATE",
+        "guards": ["staging_aborted", "hp3_no_viable_application", "boot_authority_unchanged", "recovery_reserve_intact"],
+        "id": "update.abort_to_recovery",
+        "intent_after": "RECOVERY",
+        "to": "RECOVERY",
+        "trigger": "ABORT_OR_FAILURE"
+      },
+      {
+        "control_source": "UPDATE",
+        "from": "RECOVERY",
+        "guards": ["session_authorized", "replay_fresh", "deadline_live", "application_absent", "native_refinements_unloaded", "exclusive_update_admitted", "inactive_slot_selected"],
+        "id": "recovery.begin_update",
+        "intent_after": "UPDATE",
+        "to": "UPDATE",
+        "trigger": "BEGIN_UPDATE"
+      },
+      {
+        "control_source": "RECOVERY",
+        "from": "RECOVERY",
+        "guards": ["session_authorized", "replay_fresh", "deadline_live", "reboot_privilege", "hp3_boot_authority_established", "selected_application_viable"],
+        "id": "recovery.reboot_viable",
+        "intent_after": "NONE",
+        "to": "REBOOT_HANDOFF",
+        "trigger": "REBOOT"
+      }
+    ],
+    "prohibited_transitions": [
+      "NORMAL -> UPDATE",
+      "NORMAL -> REBOOT_HANDOFF without HP3 boot authority",
+      "QUIESCE -> UPDATE while any guest or native refinement remains loaded",
+      "UPDATE -> REBOOT_HANDOFF before a durable HP3 TRIAL journal commit",
+      "RECOVERY -> NORMAL without reboot through HP3 selection",
+      "REBOOT_HANDOFF -> any HP4 state",
+      "any application, event, effect, native refinement, or transport callback -> administrative transition"
+    ],
+    "reboot_handoff": "terminal volatile HP4 state; reboot returns authority to the existing HP3 boot selector",
+    "state_preserving_commands": {
+      "ABORT_in_RECOVERY": "SUCCEEDED with RECOVERY retained and no slot mutation",
+      "STATUS": "allowed in every state; read-only and bounded",
+      "WRITE_CHUNK_and_FINISH_UPDATE": "allowed only in UPDATE and do not themselves change HP4 mode",
+      "authorization_or_replay_rejection": "state, intent, slot, boot authority, security floor, and session ownership remain unchanged"
+    },
+    "states": ["NORMAL", "QUIESCE", "UPDATE", "RECOVERY", "REBOOT_HANDOFF"],
+    "volatile_machine": true
+  },
+  "status": "FROZEN"
+}

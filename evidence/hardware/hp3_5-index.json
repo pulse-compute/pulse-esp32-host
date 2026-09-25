@@ -1,0 +1,85 @@
+{
+  "campaign": {
+    "id": "hp3_5-safe-inactive-slot-v1",
+    "sha256": "b482f49a4d50312ba9efcf78d2d0a10495a67cd9e621f8662abed84fc3e2e3d3"
+  },
+  "claim_boundary": {
+    "exhaustive_matrix": "HOST_ONLY",
+    "external_provider": "NOT_IMPLEMENTED",
+    "factory_host_partition_written": false,
+    "host_firmware_ota": "NOT_IMPLEMENTED",
+    "inactive_slot_only": true,
+    "physical_campaign": "SAFE_SUBSET_ONLY",
+    "rax": "NOT_IMPLEMENTED"
+  },
+  "closure_handoff": {
+    "library_file_id": "libfile_08d0211d466c819188e204b1f0f092ab",
+    "name": "pulse-esp32-host-hp3_5-closure-and-hp4-kickoff-handoff-v1.md",
+    "sha256": "1eca735d33423f7bb980f5eb710142474a5133ed8849c875609264444648ef11",
+    "size": 19384
+  },
+  "coverage": {
+    "ambiguous_boot_authority": false,
+    "application_code_launched_before_authority": false,
+    "checkpoints_per_board": 13,
+    "last_confirmed_destroyed": false,
+    "physical_named_boards": 2
+  },
+  "dual_evaluation": {
+    "aggregate": "DUAL_NAMED_BOARD_SAFE_SUBSET_OBSERVED",
+    "evaluation_sha256": "fda59573053dc9e6e2003e4b631a26964c5061eb9922f2bc2b681c65d3f51168",
+    "manifest_sha256": "dd72112eb875a22fa13923848081458f5b7aa7119b08e09a2e4501e4add81549",
+    "status": "PASS"
+  },
+  "evidence_archive": {
+    "library_file_id": "libfile_51793ea38fe88191ad717d280ff8bee7",
+    "name": "hardware.zip",
+    "raw_full_flash_backups_source_distributed": false,
+    "sha256": "60a35dc456191b0b38ad587cf1cf2404a23a0856aa0cd0782ef712fef15159ba",
+    "size": 101499980
+  },
+  "lanes": {
+    "esp32c6": {
+      "board_id": "seeed-xiao-esp32c6-4m",
+      "board_report_sha256": "6c871c34e5a188970d0d9ad8950fad36e2a8c1e222a60c8211c454587e946de2",
+      "build_report_sha256": "b44bb7141a47b3fbc4c2813046188db2bef7087363079893a32fcad29cac4ee1",
+      "checkpoint_count": 13,
+      "evidence_origin": "PHYSICAL_NAMED_BOARD",
+      "flash_bytes": 4194304,
+      "module_or_board_marking": "XIAO ESP32C6 / ESP32-C6FH4",
+      "physical_board_uid_sha256": "442ea5365109ad83cbf881e504657c28824091e28442c9cc64f59f23258b14d3",
+      "psram_bytes": 0,
+      "serial_log_sha256": "a3db88e623fa31bde68c979583cf8d0b00a7133a7acf7f22fc14a6705724d26a",
+      "status": "PASS",
+      "target": "esp32c6"
+    },
+    "esp32s3": {
+      "board_id": "aitrip-esp32s3-devkitc-1-n8r2",
+      "board_report_sha256": "34e7a64a2ea6a3dca848f31386ca136016bdf64af5e3722c505ec4f80b759337",
+      "build_report_sha256": "014ac382b776e2e0b02f48237dc65aef2702909172c26cb8ee9a139dc6feafdf",
+      "checkpoint_count": 13,
+      "evidence_origin": "PHYSICAL_NAMED_BOARD",
+      "flash_bytes": 8388608,
+      "module_or_board_marking": "ESP32-S3-WROOM-1-N8R2",
+      "physical_board_uid_sha256": "395043dec13403962a963d78bb6ef252216f90fc3a54fe99fc7bab787bee760d",
+      "psram_bytes": 2097152,
+      "serial_log_sha256": "4673297ec9e996661195af1732cdce8887c5f3ad4f7a2c59311bb149cf858474",
+      "status": "PASS",
+      "target": "esp32s3"
+    }
+  },
+  "pass": "HP3.5",
+  "schema": "pulse.esp32.hp3_5-hardware-evidence-index.v1",
+  "source_authority": {
+    "firmware_file_count": 141,
+    "firmware_tree_sha256": "c7b4341e00911b3b26b4d9b8abcd831af4abdf7754503a79298e86aa2b9d2c31",
+    "input_archive_library_file_id": "libfile_0c378f9794c88191b0a275c2cee4b994",
+    "input_archive_library_version": 8,
+    "input_archive_name": "pulse-esp32-host-hp3_5-source-v1.zip",
+    "input_archive_sha256": "7be285c47d268721e4a419074d8a551a7db59968bed8738a8ab7ee0c979c4a9a",
+    "native_sdk_file_count": 1,
+    "native_sdk_tree_sha256": "a7ceb397ab009950a1ebbdea60280f7944020a6523252b7de0d781e3e798bdd4"
+  },
+  "status": "PASS",
+  "terminal_result": "DUAL_NAMED_BOARD_SAFE_SUBSET_OBSERVED"
+}

@@ -144,6 +144,9 @@ typedef struct WdcBundleSlotRecord {
     uint32_t bundle_version;
     uint64_t security_counter;
     uint8_t payload_sha256[WDC_BUNDLE_SHA256_BYTES];
+    uint32_t artifact_format_version;
+    uint32_t artifact_bytes;
+    uint8_t artifact_sha256[WDC_BUNDLE_SHA256_BYTES];
 } WdcBundleSlotRecord;
 
 typedef struct WdcBundleMetadataV1 {
@@ -157,9 +160,20 @@ typedef struct WdcBundleMetadataV1 {
     uint32_t candidate_boot_count;
     uint32_t candidate_fault_count;
     int32_t last_failure_reason;
+    uint32_t trial_boot_in_progress;
+    uint32_t trial_boot_generation;
+    uint32_t last_reset_attribution;
+    WdcBundleSlotId last_rejected_slot;
     uint32_t metadata_generation;
     uint32_t metadata_crc;
 } WdcBundleMetadataV1;
+
+typedef struct WdcSha256Context {
+    uint8_t data[64];
+    uint32_t datalen;
+    uint64_t bitlen;
+    uint32_t state[8];
+} WdcSha256Context;
 
 const WdcBundleVerifyPolicy *wdc_bundle_default_dev_policy(void);
 WdcBundleVerifyPolicy wdc_bundle_make_default_dev_policy(const WdcDeviceProfile *profile);
@@ -170,6 +184,9 @@ const char *wdc_bundle_slot_name(WdcBundleSlotId slot);
 const char *wdc_bundle_slot_state_name(WdcSlotState state);
 
 void wdc_sha256(const uint8_t *data, uint32_t len, uint8_t out_hash[WDC_BUNDLE_SHA256_BYTES]);
+void wdc_sha256_init(WdcSha256Context *ctx);
+void wdc_sha256_update(WdcSha256Context *ctx, const uint8_t *data, uint32_t len);
+void wdc_sha256_final(WdcSha256Context *ctx, uint8_t hash[WDC_BUNDLE_SHA256_BYTES]);
 void wdc_hmac_sha256(const uint8_t *key,
                      uint32_t key_len,
                      const uint8_t *part0,
